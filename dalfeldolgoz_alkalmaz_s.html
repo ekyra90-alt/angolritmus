@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dalfeldolgozó</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+    <!-- Fő kártya konténer -->
+    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg mt-10 border border-slate-100 w-full">
+        <h1 class="text-2xl font-bold mb-4 text-center text-slate-800">Dalfeldolgozó</h1>
+        
+        <div id="ui-container" class="space-y-4">
+            <p id="status" class="text-slate-600 text-center">Betöltés...</p>
+        </div>
+        
+        <audio id="audio-player" class="w-full mt-6" controls>
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <script>
+        const audio = document.getElementById('audio-player');
+        const statusText = document.getElementById('status');
+
+        async function init() {
+            // Fontos: GitHubon az elérési út gyakran érzékeny a kis/nagybetűkre!
+            // Ellenőrizd, hogy a 'music' mappa és a 'hipochondria.mp3' fájlnév 
+            // pontosan ilyen írásmóddal szerepel-e a repódban.
+            const audioPath = "music/hipochondria.mp3";
+            
+            audio.src = audioPath;
+            
+            audio.onloadeddata = () => {
+                statusText.innerText = "Dal készen áll!";
+                console.log("Sikeres betöltés:", audioPath);
+            };
+
+            audio.onerror = (e) => {
+                statusText.innerText = "Hiba: Nem található a fájl (" + audioPath + ")";
+                console.error("Audio hiba (404?):", e);
+                console.log("Ellenőrizd a fájlnevet a GitHubon, különösen a kis/nagybetűket!");
+            };
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
