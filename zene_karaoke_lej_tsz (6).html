@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zene & Karaoke Lejátszó</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-300">
+
+  <header class="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 py-4 px-6 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <span class="text-base font-bold tracking-wide">Zenei Karaoke Stúdió</span>
+    </div>
+  </header>
+
+  <audio id="zene" preload="auto"></audio>
+
+  <main class="flex-1 max-w-2xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+    
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border shadow-sm">
+      <label class="block text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Válassz zenét:</label>
+      <select id="songSelector" class="w-full p-3 rounded-xl bg-slate-100 dark:bg-slate-700 font-bold border-0 focus:ring-2 focus:ring-violet-500 transition-all">
+        <option value="">-- Válassz egy dalt --</option>
+        <option value="https://cdn.jsdelivr.net/gh/pintergabor/Hipochondria@main/Hipochondria.mp3">Hipochondria</option>
+      </select>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border shadow-sm space-y-4">
+      <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Gyorsugrás</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="verseBtnsContainer"></div>
+      <div class="flex justify-between items-center pt-2 border-t">
+        <button onclick="clearLoop()" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-xs font-bold rounded-lg">Loop törlése</button>
+        <span id="loopBadge" class="hidden text-xs bg-violet-600 text-white px-2 py-1 rounded">Ismétlés aktív</span>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 p-4 border rounded-2xl shadow-sm flex items-center gap-4">
+      <button id="playPauseBtn" class="p-3 bg-violet-600 hover:bg-violet-700 text-white rounded-full font-bold text-sm transition-all">▶️ Lejátszás</button>
+      <input type="range" id="progressBar" value="0" class="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none accent-violet-600">
+      <span id="currentTime" class="text-xs font-mono text-slate-400">0:00</span>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-3xl border p-6 space-y-6 max-h-[500px] overflow-y-auto" id="lyricsBox"></div>
+  </main>
+
+  <script>
+    // Az adatokat közvetlenül a fájlba raktam a megbízhatóság érdekében
+    const songStructureData = [
+      {
+        title: "1. Versszak",
+        start: 0,
+        end: 15,
+        lines: [
+          { start: 0, end: 5, text: "Welcome to the **rhythm** of life", hungarian: "Üdvözöllek az élet ritmusában" },
+          { start: 5, end: 10, text: "Walking through the **city** lights", hungarian: "Séta a városi fények között" }
+        ]
+      }
+    ];
+
+    const audio = document.getElementById("zene");
+    const songSelector = document.getElementById("songSelector");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const progressBar = document.getElementById("progressBar");
+    const currentTimeText = document.getElementById("currentTime");
+    const lyricsBox = document.getElementById("lyricsBox");
+    const verseBtnsContainer = document.getElementById("verseBtnsContainer");
+    const loopBadge = document.getElementById("loopBadge");
+
+    let loopStart = null; let loopEnd = null; let isMusicPlaying = false;
+
+    songSelector.addEventListener('change', (e) => {
+      if (e.target.value) {
+        audio.src = e.target.value;
+        audio.play();
+        isMusicPlaying = true;
+        playPauseBtn.textContent = "⏸️ Szünet";
+      }
+    });
+
+    function buildUI() {
+      verseBtnsContainer.innerHTML = '';
+      songStructureData.forEach((verse, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "py-2 px-3 text-xs font-bold bg-slate-100 rounded-xl hover:bg-violet-100";
+        btn.textContent = verse.title;
+        btn.addEventListener('click', () => setLoop(verse.start, verse.end, verse.title));
+        verseBtnsContainer.appendChild(btn);
+      });
+      // ... a további UI generáló logika ...
+    }
+
+    function setLoop(start, end, label) {
+      loopStart = start; loopEnd = end;
+      audio.currentTime = loopStart;
+      audio.play();
+    }
+
+    function clearLoop() { loopStart = null; loopEnd = null; loopBadge.classList.add('hidden'); }
+
+    buildUI();
+  </script>
+</body>
+</html>
