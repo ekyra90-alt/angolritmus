@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dalfeldolgozó Alkalmazás</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    
+    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg mt-10 border border-slate-100">
+        <h1 class="text-2xl font-bold mb-4 text-center text-slate-800">Dalfeldolgozó</h1>
+        
+        <div id="ui-container" class="space-y-4">
+            <p id="status" class="text-slate-600 text-center">Betöltés alatt...</p>
+        </div>
+        
+        <audio id="audio-player" class="w-full mt-6" controls></audio>
+    </div>
+
+    <script>
+        const audio = document.getElementById('audio-player');
+        let currentSongData = null;
+
+        // Mock függvény a daladatok betöltésére
+        async function loadSongData(id) {
+            return {
+                id: id,
+                audioUrl: "music/hipochondria.mp3",
+                title: "Hipochondria"
+            };
+        }
+
+        async function init() {
+            try {
+                currentSongData = await loadSongData('hipochondria');
+                if (!currentSongData) throw new Error("Nem található a dal adat!");
+                
+                // Bolondbiztos módszer az elérési útra
+                audio.src = "./" + currentSongData.audioUrl; 
+                console.log("MP3 forrás beállítva:", audio.src);
+                
+                document.getElementById('status').innerText = "Dal készen áll: " + currentSongData.title;
+            } catch (err) {
+                console.error("Hiba történt:", err);
+                document.getElementById('status').innerText = "Hiba történt a betöltéskor.";
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
