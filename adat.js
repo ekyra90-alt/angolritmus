@@ -247,6 +247,136 @@ const SONGS = [
       }
     ]
   }
+  {
+    id: "my_party",
+    title: "My Party",
+    localAudio: "MyParty.mp3",
+    fallbackAudio: "",
+
+    cardsData: [
+      { keyword: "character", english: "We all have a different **character**.", hungarian: "Mindannyiunknak más a karaktere/egyénisége.", startTime: 28.8, endTime: 32.3, verseIndex: 1 },
+      { keyword: "active", english: "Look at Jim, he is **active**.", hungarian: "Nézz Jimre, ő aktív/élénk.", startTime: 35.8, endTime: 39.1, verseIndex: 1 },
+      { keyword: "calm", english: "His lovely girlfriend is so **calm**.", hungarian: "A kedves barátnője olyan nyugodt.", startTime: 43.1, endTime: 46.6, verseIndex: 2 },
+      { keyword: "fool", english: "Don’t be a **fool**, my friend.", hungarian: "Ne légy bolond, barátom.", startTime: 50.0, endTime: 53.6, verseIndex: 2 },
+      { keyword: "ability", english: "Everyone has a special **ability**.", hungarian: "Mindenkinek van egy különleges képessége.", startTime: 111.0, endTime: 114.7, verseIndex: 4 },
+      { keyword: "talent", english: "My friend Max has many **talent**.", hungarian: "Max barátomnak sok tehetsége van.", startTime: 118.2, endTime: 121.7, verseIndex: 4 },
+      { keyword: "creative", english: "Mary is very **creative** and smart.", hungarian: "Mary nagyon kreatív és eszes/intelligens.", startTime: 125.4, endTime: 129.4, verseIndex: 5 },
+      { keyword: "smart", english: "Mary is very creative and **smart**.", hungarian: "Mary nagyon kreatív és eszes/intelligens.", startTime: 125.4, endTime: 129.4, verseIndex: 5 },
+      { keyword: "quiet", english: "Tom is **quiet** and intelligent.", hungarian: "Tom csendes és intelligens.", startTime: 132.7, endTime: 135.9, verseIndex: 5 },
+      { keyword: "intelligent", english: "Tom is quiet and **intelligent**.", hungarian: "Tom csendes és intelligens.", startTime: 132.7, endTime: 135.9, verseIndex: 5 },
+      { keyword: "talented", english: "You are a very **talented** person.", hungarian: "Te egy nagyon tehetséges személy vagy.", startTime: 139.7, endTime: 143.4, verseIndex: 6 },
+      { keyword: "powerful", english: "The rich politician is very **powerful**.", hungarian: "A gazdag politikus nagyon nagy hatalommal rendelkezik.", startTime: 146.8, endTime: 150.3, verseIndex: 6 },
+      { keyword: "strict", english: "Anna’s mom is so **strict**.", hungarian: "Anna anyukája olyan szigorú.", startTime: 212.0, endTime: 215.0, verseIndex: 8 },
+      { keyword: "difficult", english: "The escape is **difficult**.", hungarian: "A szökés nehéz.", startTime: 218.7, endTime: 222.2, verseIndex: 8 },
+      { keyword: "weak", english: "Jack is not really **weak**.", hungarian: "Jack nem igazán gyenge.", startTime: 25.5, endTime: 29.5, verseIndex: 9 }, // (vagy 225.5-től)
+      { keyword: "stupid", english: "He isn’t **stupid** or silly.", hungarian: "Nem ostoba vagy buta.", startTime: 233.3, endTime: 236.9, verseIndex: 9 },
+      { keyword: "silly", english: "He isn’t stupid or **silly**.", hungarian: "Nem ostoba vagy buta.", startTime: 233.3, endTime: 236.9, verseIndex: 9 },
+      { keyword: "easygoing", english: "My brother is **easygoing**.", hungarian: "A testvérem lezser / semmiből gondot nem csináló.", startTime: 240.3, endTime: 243.8, verseIndex: 10 },
+      { keyword: "serious", english: "My father is very quiet and **serious**.", hungarian: "Az apukám nagyon csendes és komoly.", startTime: 247.0, endTime: 251.1, verseIndex: 10 }
+    ],
+
+    songStructureData: [
+      {
+        title: "Refrén", start: 14.0, end: 28.8,
+        lines: [
+          { text: "This is my party, everyone is here.", hungarian: "Ez az én bulim, mindenki itt van.", start: 14.0, end: 17.7 },
+          { text: "This is my house, everything is clear.", hungarian: "Ez az én házam, minden tiszta/világos.", start: 17.7, end: 21.1 },
+          { text: "My all best friends are drunk.", hungarian: "Az összes legjobb barátom részeg.", start: 21.1, end: 23.6 },
+          { text: "A hangover is guaranteed to come!", hungarian: "A másnaposság garantáltan megérkezik!", start: 23.6, end: 28.8 }
+        ]
+      },
+      {
+        title: "1. Versszak", start: 28.8, end: 43.1,
+        lines: [
+          { text: "We all have a different **character**.", hungarian: "Mindannyiunknak más a karaktere/egyénisége.", start: 28.8, end: 32.3, cardIndexes: [0] },
+          { text: "Let’s drink some wine together!", hungarian: "Igyunk egy kis bort együtt!", start: 32.3, end: 35.8 },
+          { text: "Look at Jim, he is **active**.", hungarian: "Nézz Jimre, ő aktív/élénk.", start: 35.8, end: 39.1, cardIndexes: [1] },
+          { text: "He always wants to live.", hungarian: "Mindig élni akar.", start: 39.1, end: 43.1 }
+        ]
+      },
+      {
+        title: "2. Versszak", start: 43.1, end: 56.8,
+        lines: [
+          { text: "His lovely girlfriend is so **calm**.", hungarian: "A kedves barátnője olyan nyugodt.", start: 43.1, end: 46.6, cardIndexes: [2] },
+          { text: "She is sitting under a palm.", hungarian: "Egy pálmafa alatt ül.", start: 46.6, end: 50.0 },
+          { text: "Don’t be a **fool**, my friend.", hungarian: "Ne légy bolond, barátom.", start: 50.0, end: 53.6, cardIndexes: [3] },
+          { text: "Dance with us until the end!", hungarian: "Táncolj velünk a végéig!", start: 53.6, end: 56.8 }
+        ]
+      },
+      {
+        title: "Refrén (2.)", start: 56.8, end: 111.0,
+        lines: [
+          { text: "This is my party, everyone is here.", hungarian: "Ez az én bulim, mindenki itt van.", start: 56.8, end: 60.0 },
+          { text: "This is my house, everything is clear.", hungarian: "Ez az én házam, minden tiszta/világos.", start: 60.0, end: 63.5 },
+          { text: "My all best friends are drunk.", hungarian: "Az összes legjobb barátom részeg.", start: 63.5, end: 66.0 },
+          { text: "A hangover is guaranteed to come!", hungarian: "A másnaposság garantáltan megérkezik!", start: 66.0, end: 111.0 }
+        ]
+      },
+      {
+        title: "3. Versszak", start: 111.0, end: 125.4,
+        lines: [
+          { text: "Everyone has a special **ability**.", hungarian: "Mindenkinek van egy különleges képessége.", start: 111.0, end: 114.7, cardIndexes: [4] },
+          { text: "We can change our reality.", hungarian: "Meg tudjuk változtatni a valóságunkat.", start: 114.7, end: 118.2 },
+          { text: "My friend Max has many **talent**.", hungarian: "Max barátomnak sok tehetsége van.", start: 118.2, end: 121.7, cardIndexes: [5] },
+          { text: "He can eat six eggplants.", hungarian: "Hat padlizsánt tud megenni.", start: 121.7, end: 125.4 }
+        ]
+      },
+      {
+        title: "4. Versszak", start: 125.4, end: 139.7,
+        lines: [
+          { text: "Mary is very **creative** and **smart**.", hungarian: "Mary nagyon kreatív és eszes/intelligens.", start: 125.4, end: 129.4, cardIndexes: [6, 7] },
+          { text: "She loves music and art.", hungarian: "Szereti a zenét és a művészetet.", start: 129.4, end: 132.7 },
+          { text: "Tom is **quiet** and **intelligent**.", hungarian: "Tom csendes és intelligens.", start: 132.7, end: 135.9, cardIndexes: [8, 9] },
+          { text: "His cocktails are excellent.", hungarian: "A koktéljai kiválóak.", start: 135.9, end: 139.7 }
+        ]
+      },
+      {
+        title: "5. Versszak", start: 139.7, end: 175.5,
+        lines: [
+          { text: "You are a very **talented** person.", hungarian: "Te egy nagyon tehetséges személy vagy.", start: 139.7, end: 143.4, cardIndexes: [10] },
+          { text: "You can learn every lesson.", hungarian: "Minden leckét meg tudsz tanulni.", start: 143.4, end: 146.8 },
+          { text: "The rich politician is very **powerful**.", hungarian: "A gazdag politikus nagyon nagy hatalommal rendelkezik.", start: 146.8, end: 150.3, cardIndexes: [11] },
+          { text: "His house is built with public funds. Uuuuuuuuu", hungarian: "A háza közpénzből épült. Uuuuuuuuu", start: 150.3, end: 175.5 }
+        ]
+      },
+      {
+        title: "Refrén (3.)", start: 175.5, end: 212.0,
+        lines: [
+          { text: "This is my party, everyone is here.", hungarian: "Ez az én bulim, mindenki itt van.", start: 175.5, end: 177.5 },
+          { text: "This is my house, everything is clear.", hungarian: "Ez az én házam, minden tiszta/világos.", start: 177.5, end: 200.7 },
+          { text: "My all best friends are drunk.", hungarian: "Az összes legjobb barátom részeg.", start: 200.7, end: 203.5 },
+          { text: "A hangover is guaranteed to come!", hungarian: "A másnaposság garantáltan megérkezik!", start: 203.5, end: 212.0 }
+        ]
+      },
+      {
+        title: "6. Versszak", start: 212.0, end: 225.5,
+        lines: [
+          { text: "Anna’s mom is so **strict**.", hungarian: "Anna anyukája olyan szigorú.", start: 212.0, end: 215.0, cardIndexes: [12] },
+          { text: "But she has a good trick.", hungarian: "De van egy jó trükkje.", start: 215.0, end: 218.7 },
+          { text: "The escape is **difficult**.", hungarian: "A szökés nehéz.", start: 218.7, end: 222.2, cardIndexes: [13] },
+          { text: "But freedom is the result.", hungarian: "De a szabadság az eredmény.", start: 222.2, end: 225.5 }
+        ]
+      },
+      {
+        title: "7. Versszak", start: 225.5, end: 240.3,
+        lines: [
+          { text: "Jack is not really **weak**.", hungarian: "Jack nem igazán gyenge.", start: 225.5, end: 229.5, cardIndexes: [14] },
+          { text: "He beats Hulk every week.", hungarian: "Minden héten elveri Hulk-ot.", start: 229.5, end: 233.3 },
+          { text: "He isn’t **stupid** or **silly**.", hungarian: "Nem ostoba vagy buta.", start: 233.3, end: 236.9, cardIndexes: [15, 16] },
+          { text: "Batman is his family", hungarian: "Batman a családja", start: 236.9, end: 240.3 }
+        ]
+      },
+      {
+        title: "8. Versszak", start: 240.3, end: 260.0,
+        lines: [
+          { text: "My brother is **easygoing**.", hungarian: "A testvérem lezser / semmiből gondot nem csináló.", start: 240.3, end: 243.8, cardIndexes: [17] },
+          { text: "The good energy is flowing.", hungarian: "Árad a jó energia.", start: 243.8, end: 247.0 },
+          { text: "My father is very quiet and **serious**.", hungarian: "Az apukám nagyon csendes és komoly.", start: 247.0, end: 251.1, cardIndexes: [18] },
+          { text: "The world is big and curious.", hungarian: "A világ nagy és kíváncsi.", start: 251.1, end: 260.0 }
+        ]
+      }
+    ]
+}
 
   // ---- ÚJ DAL FELVÉTELE: ----
   // ,{
