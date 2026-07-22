@@ -214,56 +214,140 @@ const TOPICS = [
               { text: "He can never turn it off.", hungarian: "Soha nem tudja kikapcsolni.", start: 102.8, end: 105.2 },
               { text: "He **cough** loudly in the bed.", hungarian: "Hangosan köhög az ágyban.", start: 105.2, end: 107.3, cardIndexes: [4] },
               { text: "He puts a blanket on his head.", hungarian: "Egy takarót tesz a fejére.", start: 107.3, end: 109.9 }
-            ]
-          },
-          {
-            title: "4. Versszak", start: 109.9, end: 121.8,
-            lines: [
-              { text: "He **complain of** a **backache** now.", hungarian: "Hátfájásra panaszkodik most.", start: 109.9, end: 112.3, cardIndexes: [5, 6] },
-              { text: "He is groaning like a cow.", hungarian: "Nyög, mint egy tehén.", start: 112.3, end: 114.8 },
-              { text: "He feels a sharp **earache** too.", hungarian: "Éles fülfájást érez szintén.", start: 114.8, end: 117.2, cardIndexes: [7] },
-              { text: "He cannot wear his blue shoe.", hungarian: "Nem tudja viselni a kék cipőjét.", start: 117.2, end: 121.8 }
-            ]
-          },
-          {
-            title: "Refrén (3.)", start: 121.8, end: 141.3,
-            lines: [
-              { text: "He has the terrible man flu,", hungarian: "Szörnyű férfi influenzája van,", start: 121.8, end: 126.4 },
-              { text: "He does not know what to do.", hungarian: "Nem tudja, mit tévő legyen.", start: 126.4, end: 130.7 },
-              { text: "He thinks the end is very near,", hungarian: "Azt hiszi, a vég nagyon közel van,", start: 130.7, end: 136.3 },
-              { text: "His eyes are full of fear.", hungarian: "A szeme tele van félelemmel.", start: 136.3, end: 141.3 }
-            ]
-          },
-          {
-            title: "5. Versszak", start: 141.3, end: 160.5,
-            lines: [
-              { text: "He thinks he **get cancer** today.", hungarian: "Azt hiszi, rákot kapott ma.", start: 141.3, end: 146.1, cardIndexes: [8] },
-              { text: "He wants to throw his life away.", hungarian: "El akarja dobni az életét.", start: 146.1, end: 150.6 },
-              { text: "This **ache** is extremely deep.", hungarian: "Ez a fájdalom rendkívül mély.", start: 150.6, end: 155.3, cardIndexes: [9] },
-              { text: "He cannot even fall asleep.", hungarian: "Még elaludni sem tud.", start: 155.3, end: 160.5 }
-            ]
-          },
-          {
-            title: "6. Versszak", start: 160.5, end: 179.6,
-            lines: [
-              { text: "He writes his last will fast.", hungarian: "Gyorsan megírja az utolsó akaratát.", start: 160.5, end: 165.3 },
-              { text: "This short life did not last.", hungarian: "Ez a rövid élet nem tartott sokáig.", start: 165.3, end: 169.7 },
-              { text: "He talks about his tragic **death**.", hungarian: "A tragikus haláláról beszél.", start: 169.7, end: 174.2, cardIndexes: [10] },
-              { text: "With his very final breath.", hungarian: "A legutolsó leheletével.", start: 174.2, end: 179.6 }
-            ]
-          },
-          {
-            title: "7. Versszak", start: 179.6, end: 193.9,
-            lines: [
-              { text: "Please **bury** me under the tree!", hungarian: "Kérlek, temessetek el a fa alá!", start: 179.6, end: 184.3, cardIndexes: [11] },
-              { text: "Where the beautiful birds are free.", hungarian: "Ahol a gyönyörű madarak szabadok.", start: 184.3, end: 188.9 },
-              { text: "He acts like a **mad** man.", hungarian: "Úgy viselkedik, mint egy őrült ember.", start: 188.9, end: 193.9, cardIndexes: [12] },
               { text: "I help him as much as I can.", hungarian: "Segítek neki, amennyire csak tudok.", start: 193.9, end: 197.4 }
-         ]
+            ]
           }
         ]
       },
       {
+        id: "waiting_room",
+        title: "Waiting Room",
+        localAudio: "WaitingRoom.mp3",
+        fallbackAudio: "",
+
+        cardsData: [
+          { keyword: "fatigue", english: "While the heavy **fatigue** and silence bounds.", hungarian: "Míg a súlyos fáradtság és csend határolja.", startTime: 49.2, endTime: 56.8, verseIndex: 1 },
+          { keyword: "phalange", english: "He broke a **phalange**, playing in the sand.", hungarian: "Eltörte egy ujjpercét, miközben a homokban játszott.", startTime: 60.0, endTime: 62.9, verseIndex: 1 },
+          { keyword: "vertigo", english: "He feels a sharp **vertigo**, weak upon his knees.", hungarian: "Éles szédülést érez, gyengén a térdén.", startTime: 66.2, endTime: 69.7, verseIndex: 1 },
+          { keyword: "bruise", english: "A woman sitting near me has a massive **bruise**.", hungarian: "Egy mellettem ülő nőnek hatalmas zúzódása van.", startTime: 109.7, endTime: 112.9, verseIndex: 2 },
+          { keyword: "rash", english: "She has a red **rash** spreading on her arm.", hungarian: "Piros kiütés terjed a karján.", startTime: 116.0, endTime: 119.3, verseIndex: 2 },
+          { keyword: "meniscus", english: "A runner by the window feels a sharp **meniscus** pain.", hungarian: "Az ablaknál álló futó éles meniszkusz fájdalmat érez.", startTime: 205.4, endTime: 208.8, verseIndex: 3 },
+          { keyword: "patella", english: "His **patella** is swollen, making loud complaints.", hungarian: "A térdkalácsa duzzadt, hangosan panaszolva.", startTime: 211.9, endTime: 215.0, verseIndex: 3 },
+          { keyword: "sternum", english: "Another patient tells the nurse about his **sternum** ache.", hungarian: "Egy másik beteg a szegycsontfájdalmáról beszél a nővérnek.", startTime: 218.4, endTime: 222.0, verseIndex: 4 },
+          { keyword: "clavicle", english: "A basketball player holds his broken **clavicle** tight.", hungarian: "Egy kosárlabdázó szorosan tartja a törött kulcscsontját.", startTime: 231.4, endTime: 235.1, verseIndex: 5 },
+          { keyword: "scapula", english: "His **scapula** is aching from the heavy fall.", hungarian: "Fáj a lapockája a nehéz eséstől.", startTime: 238.1, endTime: 241.4, verseIndex: 5 },
+          { keyword: "tendon", english: "A dancer pulled a **tendon** while she tried to bend.", hungarian: "Egy táncos meghúzott egy inat, miközben hajolni próbált.", startTime: 327.9, endTime: 330.7, verseIndex: 6 },
+          { keyword: "ligament", english: "A **ligament** is strained, she cannot walk away.", hungarian: "Egy szalag megfeszült/meghúzódott, nem tud elmenni.", startTime: 333.9, endTime: 337.2, verseIndex: 6 },
+          { keyword: "cartilage", english: "The damaged **cartilage** is hurting in his knee.", hungarian: "A sérült porc fáj a térdében.", startTime: 342.5, endTime: 345.8, verseIndex: 7 },
+          { keyword: "nausea", english: "He feels a deep **nausea** coming to his head.", hungarian: "Mély hányingert érez, ami a fejébe árad.", startTime: 348.6, endTime: 352.1, verseIndex: 7 },
+          { keyword: "metatarsus", english: "A worker hurt his **metatarsus** dropping heavy wood.", hungarian: "Egy munkás megsértette a lábközépcsontját, amikor nehéz fát ejtett le.", startTime: 357.2, endTime: 400.4, verseIndex: 8 }
+        ],
+
+        songStructureData: [
+          {
+            title: "Refrén", start: 28.5, end: 56.8,
+            lines: [
+              { text: "Sitting in the waiting room, feeling so alone,", hungarian: "A váróteremben ülve, olyan magányosan,", start: 28.5, end: 35.2 },
+              { text: "Waiting for the doctor, staring at my phone.", hungarian: "Orvosra várva, a telefonomat bámulva.", start: 35.2, end: 41.8 },
+              { text: "Everyone is sick and making quiet sounds,", hungarian: "Mindenki beteg és halk hangokat ad ki,", start: 41.8, end: 49.2 },
+              { text: "While the heavy **fatigue** and silence bounds.", hungarian: "Míg a súlyos fáradtság és csend határolja.", start: 49.2, end: 56.8, cardIndexes: [0] }
+            ]
+          },
+          {
+            title: "1. Versszak", start: 56.8, end: 69.7,
+            lines: [
+              { text: "A little boy is crying, holding his left hand,", hungarian: "Egy kisfiú sír, a bal kezét fogva,", start: 56.8, end: 60.0 },
+              { text: "He broke a **phalange**, playing in the sand.", hungarian: "Eltörte egy ujjpercét, miközben a homokban játszott.", start: 60.0, end: 62.9, cardIndexes: [1] },
+              { text: "An older man is coughing, breathing with a wheeze,", hungarian: "Egy idősebb férfi köhög, zihálva lélegzik,", start: 62.9, end: 66.2 },
+              { text: "He feels a sharp **vertigo**, weak upon his knees.", hungarian: "Éles szédülést érez, gyengén a térdén.", start: 66.2, end: 69.7, cardIndexes: [2] }
+            ]
+          },
+          {
+            title: "2. Versszak", start: 69.7, end: 119.3,
+            lines: [
+              { text: "A woman sitting near me has a massive **bruise**,", hungarian: "Egy mellettem ülő nőnek hatalmas zúzódása van,", start: 69.7, end: 112.9, cardIndexes: [3] },
+              { text: "She bumped into the table, nothing left to lose.", hungarian: "Nekiütközött az asztalnak, nincs vesztenivalója.", start: 112.9, end: 116.0 },
+              { text: "She has a red **rash** spreading on her arm,", hungarian: "Piros kiütés terjed a karján,", start: 116.0, end: 119.3, cardIndexes: [4] },
+              { text: "Hoping that the doctor keeps her safe from harm.", hungarian: "Bízva abban, hogy az orvos megóvja a bajtól.", start: 119.3, end: 124.5 }
+            ]
+          },
+          {
+            title: "Refrén (2.)", start: 124.5, end: 205.4,
+            lines: [
+              { text: "Sitting in the waiting room, feeling so alone,", hungarian: "A váróteremben ülve, olyan magányosan,", start: 124.5, end: 131.1 },
+              { text: "Waiting for the doctor, staring at my phone.", hungarian: "Orvosra várva, a telefonomat bámulva.", start: 131.1, end: 137.6 },
+              { text: "Everyone is sick and making quiet sounds,", hungarian: "Mindenki beteg és halk hangokat ad ki,", start: 137.6, end: 145.0 },
+              { text: "While the heavy fatigue and silence bounds.", hungarian: "Míg a súlyos fáradtság és csend határolja.", start: 145.0, end: 205.4 }
+            ]
+          },
+          {
+            title: "3. Versszak", start: 205.4, end: 218.4,
+            lines: [
+              { text: "A runner by the window feels a sharp **meniscus** pain,", hungarian: "Az ablaknál álló futó éles meniszkusz fájdalmat érez,", start: 205.4, end: 208.8, cardIndexes: [5] },
+              { text: "He twisted up his knee out running in the rain.", hungarian: "Kifordította a térdét az esőben futva.", start: 208.8, end: 211.9 },
+              { text: "His **patella** is swollen, making loud complaints,", hungarian: "A térdkalácsa duzzadt, hangosan panaszolva,", start: 211.9, end: 215.0, cardIndexes: [6] },
+              { text: "Looking at the ceiling like a pair of saints.", hungarian: "A plafont nézve, mint egy pár szent.", start: 215.0, end: 218.4 }
+            ]
+          },
+          {
+            title: "4. Versszak", start: 218.4, end: 231.4,
+            lines: [
+              { text: "Another patient tells the nurse about his **sternum** ache,", hungarian: "Egy másik beteg a szegycsontfájdalmáról beszél a nővérnek,", start: 218.4, end: 222.0, cardIndexes: [7] },
+              { text: "He says his chest is hurting every breath he'll take.", hungarian: "Azt mondja, fáj a mellkasa minden egyes lélegzetvételnél.", start: 222.0, end: 224.8 },
+              { text: "He feels a dull pressure right behind the bone,", hungarian: "Tompa nyomást érez közvetlenül a csont mögött,", start: 224.8, end: 228.1 },
+              { text: "Sitting on the chair and waiting all alone.", hungarian: "A széken ülve és teljesen egyedül várva.", start: 228.1, end: 231.4 }
+            ]
+          },
+          {
+            title: "5. Versszak", start: 231.4, end: 246.6,
+            lines: [
+              { text: "A basketball player holds his broken **clavicle** tight,", hungarian: "Egy kosárlabdázó szorosan tartja a törött kulcscsontját,", start: 231.4, end: 235.1, cardIndexes: [8] },
+              { text: "He crashed into a teammate in the game last night.", hungarian: "Összeütközött egy csapattárssal a tegnap esti meccsen.", start: 235.1, end: 238.1 },
+              { text: "His **scapula** is aching from the heavy fall,", hungarian: "Fáj a lapockája a nehéz eséstől,", start: 238.1, end: 241.4, cardIndexes: [9] },
+              { text: "Now he is the saddest person in the hall.", hungarian: "Most ő a legszomorúbb ember a teremben.", start: 241.4, end: 246.6 }
+            ]
+          },
+          {
+            title: "Refrén (3.)", start: 246.6, end: 327.9,
+            lines: [
+              { text: "Sitting in the waiting room, feeling so alone,", hungarian: "A váróteremben ülve, olyan magányosan,", start: 246.6, end: 253.4 },
+              { text: "Waiting for the doctor, staring at my phone.", hungarian: "Orvosra várva, a telefonomat bámulva.", start: 253.4, end: 300.3 },
+              { text: "Everyone is sick and making quiet sounds,", hungarian: "Mindenki beteg és halk hangokat ad ki,", start: 300.3, end: 306.4 },
+              { text: "While the heavy fatigue and silence bounds.", hungarian: "Míg a súlyos fáradtság és csend határolja.", start: 306.4, end: 327.9 }
+            ]
+          },
+          {
+            title: "6. Versszak", start: 327.9, end: 342.5,
+            lines: [
+              { text: "A dancer pulled a **tendon** while she tried to bend,", hungarian: "Egy táncos meghúzott egy inat, miközben hajolni próbált,", start: 327.9, end: 330.7, cardIndexes: [10] },
+              { text: "He hopes this painful visit comes to a quick end.", hungarian: "Reméli, hogy ez a fájdalmas látogatás hamar véget ér.", start: 330.7, end: 333.9 },
+              { text: "A **ligament** is strained, she cannot walk away,", hungarian: "Egy szalag megfeszült, nem tud elmenni,", start: 333.9, end: 337.2, cardIndexes: [11] },
+              { text: "Waiting for an answer on a rainy day.", hungarian: "Egy esős napon választ várva.", start: 337.2, end: 342.5 }
+            ]
+          },
+          {
+            title: "7. Versszak", start: 342.5, end: 357.2,
+            lines: [
+              { text: "The damaged **cartilage** is hurting in his knee,", hungarian: "A sérült porc fáj a térdében,", start: 342.5, end: 345.8, cardIndexes: [12] },
+              { text: "He walks around the office very slowly.", hungarian: "Nagyon lassan sétálgat az irodában.", start: 345.8, end: 348.6 },
+              { text: "He feels a deep **nausea** coming to his head,", hungarian: "Mély hányingert érez, ami a fejébe árad,", start: 348.6, end: 352.1, cardIndexes: [13] },
+              { text: "Wishing he was resting safely in his bed.", hungarian: "Bárcsak biztonságban pihenne az ágyában.", start: 352.1, end: 357.2 }
+            ]
+          },
+          {
+            title: "8. Versszak", start: 357.2, end: 411.9,
+            lines: [
+              { text: "A worker hurt his **metatarsus** dropping heavy wood,", hungarian: "Egy munkás megsértette a lábközépcsontját, amikor nehéz fát ejtett le,", start: 357.2, end: 400.4, cardIndexes: [14] },
+              { text: "He cannot stand as firmly as he always could.", hungarian: "Nem tud olyan szilárdan állni, mint mindig tudott.", start: 400.4, end: 403.6 },
+              { text: "The waiting room is quiet, everybody waits,", hungarian: "A váróterem csendes, mindenki vár,", start: 403.6, end: 406.9 },
+              { text: "Watching as the nurse is opening the gates.", hungarian: "Figyelve, amint a nővér nyitja az ajtókat/kapukat.", start: 406.9, end: 411.9 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     id: "waiting_room",
     title: "Waiting Room",
     localAudio: "WaitingRoom.mp3",
