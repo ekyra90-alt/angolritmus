@@ -264,7 +264,7 @@ const TOPICS = [
         ]
       }
     ]
-  },
+  }
     {
     id: "waiting_room",
     title: "Waiting Room",
@@ -299,6 +299,7 @@ const TOPICS = [
           { text: "While the heavy **fatigue** and silence bounds.", hungarian: "Míg a súlyos fáradtság és csend határolja.", start: 49.2, end: 56.8, cardIndexes: [0] }
         ]
       },
+      
       {
         title: "1. Versszak", start: 56.8, end: 69.7,
         lines: [
