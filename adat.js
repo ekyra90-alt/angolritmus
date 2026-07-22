@@ -259,13 +259,11 @@ const TOPICS = [
               { text: "Where the beautiful birds are free.", hungarian: "Ahol a gyönyörű madarak szabadok.", start: 184.3, end: 188.9 },
               { text: "He acts like a **mad** man.", hungarian: "Úgy viselkedik, mint egy őrült ember.", start: 188.9, end: 193.9, cardIndexes: [12] },
               { text: "I help him as much as I can.", hungarian: "Segítek neki, amennyire csak tudok.", start: 193.9, end: 197.4 }
-            ]
+         ]
           }
         ]
-      }
-    ]
-  }
-    {
+      },
+      {
     id: "waiting_room",
     title: "Waiting Room",
     localAudio: "WaitingRoom.mp3",
