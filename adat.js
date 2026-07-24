@@ -288,8 +288,8 @@ const TOPICS = [
             lines: [
               { text: "A little boy is crying, holding his left hand,", hungarian: "Egy kisfiú sír, a bal kezét fogja,", start: 55.7, end: 59.3 },
               { text: "He broke a **phalange**, playing in the sand.", hungarian: "Eltörött egy **ujjperc**e, miközben a homokban játszott.", start: 59.3, end: 62.6 },
-              { text: "An older man is coughing, breathing with a wheeze,", hungarian: "Egy idősebb férfi köhög, zihálva lélegzik,", start: 62.6, end: 66.0 },
-              { text: "He feels a sharp **vertigo**, weak upon his knees.", hungarian: "Erős **szédülés**t érez, gyenge a térde.", start: 66, end: 69.4 }
+              { text: "An older man is coughing, breathing with a wheeze,", hungarian: "Egy idősebb férfi köhög, zihálva lélegzik,", start: 62.6, end: 66.5 },
+              { text: "He feels a sharp **vertigo**, weak upon his knees.", hungarian: "Erős **szédülés**t érez, gyenge a térde.", start: 66.5, end: 69.4 }
             ]
           },
           {
