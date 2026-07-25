@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MI-alapú mondatalkotás</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+    <!-- Adatfájl betöltése -->
+    <script src="adat.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center py-6 px-4 pb-12">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col gap-6">
+        
+        <!-- Felső navigációs sáv -->
+        <div class="flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                Vissza
+            </a>
+            <span class="text-xs font-bold tracking-wider uppercase text-violet-600 bg-violet-50 px-3 py-1 rounded-full">MI-alapú mondatalkotás</span>
+        </div>
+
+        <!-- Cím és Tanulói Magyarázat -->
+        <div>
+            <h1 class="text-xl font-bold text-slate-900 mb-2">Írd meg a saját mondataidat! ✍️</h1>
+            <div class="bg-violet-50/70 border border-violet-100 rounded-2xl p-4 text-xs text-slate-700 leading-relaxed space-y-2">
+                <p class="font-semibold text-violet-900">🎯 Feladat leírása:</p>
+                <p>Válaszd ki alább a témakört és a dalt! Kattints azokra a szavakra, amelyeket gyakorolni szeretnél (felkerülnek a tetejére), majd írj róluk néhány önálló angol mondatot.</p>
+                <p class="text-violet-700/80">Ha kész vagy, küldd el a ChatGPT-nek, ami ellenőrzi a mondataidat!</p>
+            </div>
+        </div>
+
+        <!-- Témakör és Dal Változtató Sáv -->
+        <div class="flex flex-col gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div class="flex flex-col gap-1">
+                <label for="topicSelect" class="text-xs font-bold text-slate-700">1. Válassz témakört:</label>
+                <select id="topicSelect" onchange="onTopicChange()" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                    <option value="" disabled selected>-- Válassz témakört --</option>
+                    <!-- Dinamikusan feltöltve -->
+                </select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label for="songSelect" class="text-xs font-bold text-slate-700">2. Válassz dalt:</label>
+                <select id="songSelect" onchange="onSongChange()" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                    <option value="" disabled selected>-- Előbb válassz témakört --</option>
+                    <!-- Dinamikusan feltöltve -->
+                </select>
+            </div>
+        </div>
+
+        <!-- KIVÁLASZTOTT SZAVAK SÁVJA (Tiszta, nem villogó gombok) -->
+        <div id="selectedWordsSection" class="hidden flex-col gap-2 bg-violet-50/60 border border-violet-200 p-3.5 rounded-2xl">
+            <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-violet-900">✨ Kiválasztott szavak a gyakorláshoz:</span>
+                <span id="selectedCountBadge" class="font-semibold text-violet-700 bg-white px-2 py-0.5 rounded-md text-[10px]">0 szó</span>
+            </div>
+            <div id="selectedWordsContainer" class="flex flex-wrap gap-1.5">
+                <!-- Ide kerülnek a kiválasztott szavak gombjai -->
+            </div>
+        </div>
+
+        <!-- Mobilbarát Interaktív Szószedet Kártyák -->
+        <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-slate-700">A dal összes szava (kattints a gyakorláshoz!):</span>
+                <span id="keywordCountBadge" class="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">0 szó</span>
+            </div>
+            
+            <div id="vocabularyContainer" class="max-h-40 overflow-y-auto flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-100 rounded-2xl">
+                <span class="text-slate-400 text-xs italic p-1">Először válassz egy dalt fentebb...</span>
+            </div>
+        </div>
+
+        <!-- Szövegbeviteli mező a mondatokhoz -->
+        <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center text-xs">
+                <label for="studentSentences" class="font-bold text-slate-700">Írd ide a mondataidat (soronként egyet):</label>
+            </div>
+            
+            <textarea id="studentSentences" rows="6" 
+                placeholder="Írd ide a mondataidat a kiválasztott szavakkal..."
+                class="w-full rounded-2xl border border-slate-200 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition resize-none bg-slate-50/50"></textarea>
+            
+            <p class="text-[11px] text-slate-400">Tipp: Építsd be a kiválasztott szavakat a mondataidba!</p>
+        </div>
+
+        <!-- AI Küldő Gombok -->
+        <div class="flex flex-col gap-3 pt-2 border-t border-slate-100">
+            <p class="text-xs font-bold text-slate-600 text-center">Válassz AI ellenőrt a beküldéshez:</p>
+            
+            <!-- ChatGPT Gomb -->
+            <button onclick="sendToAI('chatgpt')" 
+                class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-semibold py-4 px-4 rounded-2xl shadow-md hover:bg-slate-800 active:scale-[0.99] transition text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                Küldés a ChatGPT-nek 💬 <span class="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full ml-1">Ajánlott</span>
+            </button>
+
+            <!-- Gemini Gomb -->
+            <button onclick="sendToAI('gemini')" 
+                class="w-full flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-700 font-medium py-3 px-4 rounded-2xl hover:bg-slate-200 active:scale-[0.99] transition text-xs">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Küldés a Gemini-nek 🤖 <span class="text-[10px] text-slate-400">(Csak Gemini Advanced előfizetéssel)</span>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentTopicIndex = null;
+        let currentSongIndex = null;
+        let selectedWords = [];
+
+        function initApp() {
+            if (typeof TOPICS === 'undefined' || TOPICS.length === 0) {
+                setTimeout(initApp, 100);
+                return;
+            }
+
+            const topicSelect = document.getElementById('topicSelect');
+            TOPICS.forEach((topic, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = topic.title;
+                topicSelect.appendChild(opt);
+            });
+        }
+
+        function onTopicChange() {
+            const topicSelect = document.getElementById('topicSelect');
+            currentTopicIndex = parseInt(topicSelect.value);
+
+            if (isNaN(currentTopicIndex)) return;
+
+            const topic = TOPICS[currentTopicIndex];
+            const songSelect = document.getElementById('songSelect');
+            songSelect.innerHTML = "<option value='' disabled selected>-- Válassz dalt --</option>";
+
+            topic.songs.forEach((song, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = song.title;
+                songSelect.appendChild(opt);
+            });
+
+            document.getElementById('vocabularyContainer').innerHTML = "<span class='text-slate-400 text-xs italic p-1'>Válassz dalt a listából...</span>";
+            document.getElementById('keywordCountBadge').textContent = "0 szó";
+            selectedWords = [];
+            renderSelectedWords();
+            currentSongIndex = null;
+        }
+
+        function onSongChange() {
+            const songSelect = document.getElementById('songSelect');
+            currentSongIndex = parseInt(songSelect.value);
+
+            if (isNaN(currentSongIndex) || currentTopicIndex === null) return;
+
+            selectedWords = [];
+            renderVocabularyList();
+            renderSelectedWords();
+        }
+
+        function renderVocabularyList() {
+            const song = TOPICS[currentTopicIndex].songs[currentSongIndex];
+            const vocabContainer = document.getElementById('vocabularyContainer');
+            const badge = document.getElementById('keywordCountBadge');
+            
+            vocabContainer.innerHTML = "";
+
+            if (song && song.cardsData && song.cardsData.length > 0) {
+                badge.textContent = `${song.cardsData.length} szó`;
+                song.cardsData.forEach((card, index) => {
+                    const hunMeaning = card.hungarian || card.keywordHungarian || "jelentés";
+                    const isSelected = selectedWords.some(w => w.keyword === card.keyword);
+
+                    const tag = document.createElement('div');
+                    
+                    if (isSelected) {
+                        tag.className = "bg-slate-100 border border-slate-200 text-slate-400 px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 cursor-pointer opacity-60 transition";
+                        tag.innerHTML = `<span class="font-bold">${card.keyword}</span> <span class="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded">Kiválasztva ✓</span>`;
+                    } else {
+                        tag.className = "bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium shadow-2xs flex items-center gap-1.5 cursor-pointer active:bg-violet-50 hover:border-violet-300 transition";
+                        tag.innerHTML = `<span class="font-bold text-violet-600">${card.keyword}</span> <span class="text-slate-400 text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">${hunMeaning}</span>`;
+                        
+                        tag.onclick = () => {
+                            selectedWords.push(card);
+                            renderVocabularyList();
+                            renderSelectedWords();
+                        };
+                    }
+
+                    vocabContainer.appendChild(tag);
+                });
+            } else {
+                badge.textContent = "0 szó";
+                vocabContainer.innerHTML = "<span class='text-slate-400 text-xs italic p-1'>Ehhez a dalhoz nincsenek kulcsszavak megadva.</span>";
+            }
+        }
+
+        function renderSelectedWords() {
+            const section = document.getElementById('selectedWordsSection');
+            const container = document.getElementById('selectedWordsContainer');
+            const badge = document.getElementById('selectedCountBadge');
+
+            container.innerHTML = "";
+
+            if (selectedWords.length > 0) {
+                section.classList.remove('hidden');
+                section.classList.add('flex');
+                badge.textContent = `${selectedWords.length} szó`;
+
+                selectedWords.forEach((card, index) => {
+                    const hunMeaning = card.hungarian || card.keywordHungarian || "jelentés";
+                    
+                    // Letisztult, nem villogó dizájn
+                    const tag = document.createElement('div');
+                    tag.className = "bg-violet-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-sm flex items-center gap-2 cursor-pointer transition";
+                    tag.innerHTML = `<span>${card.keyword} <span class="text-violet-200 font-normal">(${hunMeaning})</span></span> <span class="text-violet-200 hover:text-white font-bold ml-1">✕</span>`;
+
+                    tag.onclick = () => {
+                        selectedWords.splice(index, 1);
+                        renderVocabularyList();
+                        renderSelectedWords();
+                    };
+
+                    container.appendChild(tag);
+                });
+            } else {
+                section.classList.remove('flex');
+                section.classList.add('hidden');
+            }
+        }
+
+        function sendToAI(provider) {
+            const sentences = document.getElementById('studentSentences').value.trim();
+            
+            if (!sentences) {
+                alert("Kérlek, írj be legalább egy mondatot mielőtt elküldöd!");
+                return;
+            }
+
+            if (currentTopicIndex === null || currentSongIndex === null) {
+                alert("Kérlek, válassz ki egy témakört és egy dalt is a beküldés előtt!");
+                return;
+            }
+
+            const currentTopic = TOPICS[currentTopicIndex].title;
+            const songsObj = TOPICS[currentTopicIndex].songs[currentSongIndex];
+            const songTitle = songsObj.title;
+            
+            const activeCards = selectedWords.length > 0 ? selectedWords : (songsObj.cardsData || []);
+            const keywordsDetail = activeCards.map(c => `- "${c.keyword}" (${c.hungarian || c.keywordHungarian || 'specifikus kifejezés'})`).join('\n');
+
+            const promptText = `Te egy barátságos, bátorító angoltanár vagy. A tanuló most a(z) "${currentTopic}" témakörön belül a "${songTitle}" című dal szókincséből az alábbi kiválasztott szavakat gyakorolja:
+
+${keywordsDetail}
+
+A feladata az volt, hogy önállóan mondatokat alkosson ezek felhasználásával.
+
+SZIGORÚ TANÁRI UTASÍTÁS SZÁMODRA:
+1. Olvasd el a tanuló alábbi mondatait.
+2. Ellenőrizd, hogy nyelvtanilag helyesek-e, és használta-e a kiválasztott szavakat.
+3. HA EGY MONDAT HELYES, akkor ne kötekedj, ne adj meg „szebb” vagy „természetesebb” alternatívákat! Dicsérd meg, és lépj tovább. Feleslegesen ne bizonytalanítsd el a tanulót.
+4. Csak akkor javíts ki egy mondatot, ha abban VALÓS NYELVTANI VAGY JELENTÉSBeli hiba van. Ha javítasz, azt is kedvesen, érthetően tedd magyarul.
+5. FONTOS: Mivel ezek tematikus dalszövegek szavai (pl. orvosi szakkifejezések), ne mondd azt, hogy ne használja őket, ha helyes kontextusban szerepelnek.
+
+A tanuló mondatai:
+${sentences}`;
+
+            if (provider === 'chatgpt') {
+                const encodedPrompt = encodeURIComponent(promptText);
+                window.open(`https://chatgpt.com/?q=${encodedPrompt}`, '_blank');
+            } 
+            else if (provider === 'gemini') {
+                navigator.clipboard.writeText(promptText).then(() => {
+                    alert("A tanári promptot automatikusan a vágólapra másoltuk! 📋\n\nA megnyíló Gemini chatben csak kattints a szövegmezőre és nyomj beillesztést (hosszan nyomás a telefonon / Ctrl+V).");
+                    window.open("https://gemini.google.com/app", "_blank");
+                }).catch(err => {
+                    console.error('Vágólap hiba:', err);
+                    const encodedPrompt = encodeURIComponent(promptText);
+                    window.open(`https://gemini.google.com/app?q=${encodedPrompt}`, '_blank');
+                });
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+
+</body>
+</html>
