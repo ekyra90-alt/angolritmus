@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MI-alapú mondatalkotás</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+    <!-- Adatfájl betöltése -->
+    <script src="adat.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center py-6 px-4">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex flex-col gap-6">
+        
+        <!-- Felső navigációs sáv -->
+        <div class="flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                Vissza
+            </a>
+            <span class="text-xs font-bold tracking-wider uppercase text-violet-600 bg-violet-50 px-3 py-1 rounded-full">MI-alapú mondatalkotás</span>
+        </div>
+
+        <!-- Cím és Tanulói Magyarázat -->
+        <div>
+            <h1 class="text-xl font-bold text-slate-900 mb-2">Írd meg a saját mondataidat! ✍️</h1>
+            <div class="bg-violet-50/70 border border-violet-100 rounded-2xl p-4 text-xs text-slate-700 leading-relaxed space-y-2">
+                <p class="font-semibold text-violet-900">🎯 Feladat leírása:</p>
+                <p>Válaszd ki alább a témakört és a dalt! A szórakoppintásra láthatod a magyar jelentést is. Használd fel őket, és alkoss legalább <strong>5 önálló angol mondatot</strong>.</p>
+                <p class="text-violet-700/80">Ha kész vagy, küldd el az általad választott Mesterséges Intelligenciának, ami részletesen kijavítja a hibáidat magyarul!</p>
+            </div>
+        </div>
+
+        <!-- Témakör és Dal Változtató Sáv -->
+        <div class="flex flex-col gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <div class="flex flex-col gap-1">
+                <label for="topicSelect" class="text-xs font-bold text-slate-700">1. Válassz témakört:</label>
+                <select id="topicSelect" onchange="onTopicChange()" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                    <!-- Dinamikusan feltöltve -->
+                </select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label for="songSelect" class="text-xs font-bold text-slate-700">2. Válassz dalt:</label>
+                <select id="songSelect" onchange="onSongChange()" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                    <!-- Dinamikusan feltöltve -->
+                </select>
+            </div>
+        </div>
+
+        <!-- Mobilbarát Interaktív Szószedet Kártyák -->
+        <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center text-xs">
+                <span class="font-bold text-slate-700">A dal kulcsszavai (kattints a jelentésért!):</span>
+                <span id="keywordCountBadge" class="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">0 szó</span>
+            </div>
+            
+            <div id="vocabularyContainer" class="max-h-40 overflow-y-auto flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-100 rounded-2xl">
+                <!-- Kulcsszavak helye mobilos gombokként -->
+            </div>
+        </div>
+
+        <!-- Szövegbeviteli mező a mondatokhoz -->
+        <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center text-xs">
+                <label for="studentSentences" class="font-bold text-slate-700">Írd ide a mondataidat (soronként egyet):</label>
+                <span id="sentenceCounter" class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">0 / 5 mondat</span>
+            </div>
+            
+            <textarea id="studentSentences" rows="5" 
+                placeholder="1. ...&#10;2. ...&#10;3. ...&#10;4. ...&#10;5. ..."
+                oninput="updateSentenceCount()"
+                class="w-full rounded-2xl border border-slate-200 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition resize-none bg-slate-50/50"></textarea>
+            
+            <p id="warningText" class="text-[11px] text-slate-400">Tipp: Használj fel néhányat a fenti kulcsszavak közül!</p>
+        </div>
+
+        <!-- AI Küldő Gombok -->
+        <div class="flex flex-col gap-3 pt-2 border-t border-slate-100">
+            <p class="text-xs font-bold text-slate-600 text-center">Válassz AI ellenőrt a beküldéshez:</p>
+            
+            <!-- Gemini Gomb -->
+            <button onclick="sendToAI('gemini')" 
+                class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3.5 px-4 rounded-2xl shadow-sm hover:opacity-95 active:scale-[0.99] transition text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Küldés a Gemini-nek 🤖
+            </button>
+
+            <!-- ChatGPT Gomb -->
+            <button onclick="sendToAI('chatgpt')" 
+                class="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-semibold py-3.5 px-4 rounded-2xl shadow-sm hover:bg-slate-800 active:scale-[0.99] transition text-sm">
+    <!-- Adatfájl betöltése defer attribútummal, hogy biztosan betöltődjön -->
+    <script src="adat.js" defer></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col items-center py-6 px-4">
+
+<!-- ... existing code (the rest of the HTML structure remains the same) ... -->
+
+    <script>
+        let currentTopicIndex = 0;
+        let currentSongIndex = 0;
+
+        function initApp() {
+            // Ellenőrizzük, hogy a TOPICS változó létezik-e, ha mégsem, próbáljuk meg később
+            if (typeof TOPICS === 'undefined') {
+                console.warn("A TOPICS még nem érhető el, várakozás...");
+                setTimeout(initApp, 100); 
+                return;
+            }
+
+            const topicSelect = document.getElementById('topicSelect');
+            topicSelect.innerHTML = "";
+
+            TOPICS.forEach((topic, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = topic.title;
+                topicSelect.appendChild(opt);
+            });
+            onTopicChange();
+        }
+
+        // A window.onload helyett biztosabb a DOMContentLoaded esemény
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
