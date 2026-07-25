@@ -327,7 +327,7 @@ const TOPICS = [
           {
             title: "Verse 3", start: 124, end: 138.2,
             lines: [
-              { text: "A runner by the window feels a sharp **meniscus** pain,", hungarian: "Az ablaknál álló futó éles **meniszkusz**-fájdalmat érez,", start: 124, end: 128.4 },
+              { text: "A runner by the window feels a sharp **meniscus** pain,", hungarian: "Az ablaknál álló futó éles porcgyűrű-fájdalmat érez,", start: 124, end: 128.4 },
               { text: "He twisted up his knee out running in the rain.", hungarian: "Megcsavarta a térdét, miközben az esőben futott.", start: 128.4, end: 131.6 },
               { text: "His **patella** is swollen, making loud complaints,", hungarian: "A **térdkalács**a megduzzadt, hangos panaszokat hallat,", start: 131.6, end: 134.9 },
               { text: "Looking at the ceiling like a pair of saints.", hungarian: "Úgy nézi a mennyezetet, mint egy pár szent.", start: 134.9, end: 138.2 }
