@@ -22,6 +22,26 @@
 
     <main class="max-w-md mx-auto px-6 mt-8">
         <div id="module-list" class="space-y-4"></div>
+
+        <!-- Különálló zenelejátszó stílusú doboz a rendszeres ismétléshez -->
+        <div class="mt-8 pt-6 border-t border-slate-200">
+            <h2 class="text-xs font-bold tracking-wider text-slate-400 uppercase mb-3 px-1">Mindennapi gyakorlás</h2>
+            <a href="zene_lejatszo.html" class="block group">
+                <div class="bg-gradient-to-r from-indigo-500 to-violet-600 p-5 rounded-3xl shadow-md text-white flex items-center gap-4 hover:shadow-lg transition-all cursor-pointer">
+                    <div class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white text-2xl group-hover:scale-105 transition-transform">
+                        🎵
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-lg text-white">Rendszeres ismétlés</h3>
+                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">Audio</span>
+                        </div>
+                        <p class="text-xs text-indigo-100 opacity-90 mt-0.5">Szilárdítsd meg a tanultakat a dal rendszeres hallgatásával.</p>
+                    </div>
+                    <div class="text-indigo-200 group-hover:text-white transition-colors text-lg font-bold">❯</div>
+                </div>
+            </a>
+        </div>
     </main>
 
     <script>
@@ -52,8 +72,7 @@
             { title: "Karaoke", desc: "Egészítsd ki a mondatokat a hiányzó kulcsszavakkal.", color: "amber", link: "karaoke.html" },
             { title: "Szófordítás", desc: "Ellenőrizd tudásod: Mondd meg az angol szó magyar megfelelőjét.", color: "emerald", link: "szoforditas.html" },
             { title: "Tudásellenőrző teszt", desc: "Mondd ki hangosan az angol mondatokat és fejleszd az önbizalmad.", color: "sky", link: "beszedteszt.html" },
-            { title: "MI-alapú mondatalkotás", desc: "Alkosd meg saját mondataidat, az MI pedig kijavítja a hibáidat.", color: "violet", link: "mi_mondatalkotas.html" },
-            { title: "Rendszeres ismétlés", desc: "Szilárdítsd meg a tanultakat a dal rendszeres hallgatásával.", color: "indigo", link: "zene_lejatszo.html" }
+            { title: "MI-alapú mondatalkotás", desc: "Alkosd meg saját mondataidat, az MI pedig kijavítja a hibáidat.", color: "violet", link: "mi_mondatalkotas.html" }
         ];
 
         const container = document.getElementById('module-list');
