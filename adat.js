@@ -339,13 +339,13 @@ const TOPICS = [
               { text: "Another patient tells the nurse about his **sternum** ache,", hungarian: "Egy másik beteg a **szegycsont**fájdalmáról beszél a nővérnek,", start: 138.6, end: 142 },
               { text: "He says his chest is hurting every breath he'll take.", hungarian: "Azt mondja, fáj a mellkasa minden egyes vett lélegzetnél.", start: 142, end: 144.5 },
               { text: "He feels a dull pressure right behind the bone,", hungarian: "Tompa nyomást érez közvetlenül a csont mögött,", start: 144.5, end: 147.6 },
-              { text: "Sitting on the chair and waiting all alone.", hungarian: "A széken ül és teljesen egyedül vár.", start: 147.6, end: 151.7 }
+              { text: "Sitting on the chair and waiting all alone.", hungarian: "A széken ül és teljesen egyedül vár.", start: 147.6, end: 151 }
             ]
           },
           {
-            title: "Verse 5", start: 151.7, end: 166.5,
+            title: "Verse 5", start: 151, end: 166.5,
             lines: [
-              { text: "A basketball player holds his broken **clavicle** tight,", hungarian: "Egy kosárlabdázó szorosan fogja a törött **kulcscsont**át,", start: 151.7, end: 154.7 },
+              { text: "A basketball player holds his broken **clavicle** tight,", hungarian: "Egy kosárlabdázó szorosan fogja a törött **kulcscsont**át,", start: 151, end: 154.7 },
               { text: "He crashed into a teammate in the game last night.", hungarian: "Összeütközött egy csapattársával a tegnap esti meccsen.", start: 154.7, end: 157.7 },
               { text: "His **scapula** is aching from the heavy fall,", hungarian: "A **lapocká**ja fáj a nehéz eséstől,", start: 157.7, end: 160.9 },
               { text: "Now he is the saddest person in the hall.", hungarian: "Most ő a legszomorúbb ember a teremben.", start: 160.9, end: 166.5 }
