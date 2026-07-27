@@ -346,9 +346,9 @@ const TOPICS = [
             title: "Verse 5", start: 151, end: 166.5,
             lines: [
               { text: "A basketball player holds his broken **clavicle** tight,", hungarian: "Egy kosárlabdázó szorosan fogja a törött **kulcscsont**át,", start: 151, end: 154.7 },
-              { text: "He crashed into a teammate in the game last night.", hungarian: "Összeütközött egy csapattársával a tegnap esti meccsen.", start: 154.7, end: 156 },
-              { text: "His **scapula** is aching from the heavy fall,", hungarian: "A **lapocká**ja fáj a nehéz eséstől,", start: 156, end: 160.7 },
-              { text: "Now he is the saddest person in the hall.", hungarian: "Most ő a legszomorúbb ember a teremben.", start: 160.7, end: 166.5 }
+              { text: "He crashed into a teammate in the game last night.", hungarian: "Összeütközött egy csapattársával a tegnap esti meccsen.", start: 154.7, end: 157 },
+              { text: "His **scapula** is aching from the heavy fall,", hungarian: "A **lapocká**ja fáj a nehéz eséstől,", start: 157, end: 161 },
+              { text: "Now he is the saddest person in the hall.", hungarian: "Most ő a legszomorúbb ember a teremben.", start: 162, end: 166.5 }
             ]
           },
           {
