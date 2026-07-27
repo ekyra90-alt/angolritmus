@@ -330,14 +330,14 @@ const TOPICS = [
               { text: "A runner by the window feels a sharp **meniscus** pain,", hungarian: "Az ablaknál álló futó éles porcgyűrű-fájdalmat érez,", start: 124, end: 128.4 },
               { text: "He twisted up his knee out running in the rain.", hungarian: "Megcsavarta a térdét, miközben az esőben futott.", start: 128.4, end: 131.6 },
               { text: "His **patella** is swollen, making loud complaints,", hungarian: "A **térdkalács**a megduzzadt, hangos panaszokat hallat,", start: 131.6, end: 134.9 },
-              { text: "Looking at the ceiling like a pair of saints.", hungarian: "Úgy nézi a mennyezetet, mint egy pár szent.", start: 134.9, end: 138.2 }
+              { text: "Looking at the ceiling like a pair of saints.", hungarian: "Úgy nézi a mennyezetet, mint egy pár szent.", start: 134.9, end: 138.6 }
             ]
           },
           {
             title: "Verse 4", start: 138.2, end: 151.7,
             lines: [
-              { text: "Another patient tells the nurse about his **sternum** ache,", hungarian: "Egy másik beteg a **szegycsont**fájdalmáról beszél a nővérnek,", start: 138.2, end: 141.6 },
-              { text: "He says his chest is hurting every breath he'll take.", hungarian: "Azt mondja, fáj a mellkasa minden egyes vett lélegzetnél.", start: 141.6, end: 144.5 },
+              { text: "Another patient tells the nurse about his **sternum** ache,", hungarian: "Egy másik beteg a **szegycsont**fájdalmáról beszél a nővérnek,", start: 138.6, end: 142 },
+              { text: "He says his chest is hurting every breath he'll take.", hungarian: "Azt mondja, fáj a mellkasa minden egyes vett lélegzetnél.", start: 142, end: 144.5 },
               { text: "He feels a dull pressure right behind the bone,", hungarian: "Tompa nyomást érez közvetlenül a csont mögött,", start: 144.5, end: 147.6 },
               { text: "Sitting on the chair and waiting all alone.", hungarian: "A széken ül és teljesen egyedül vár.", start: 147.6, end: 151.7 }
             ]
