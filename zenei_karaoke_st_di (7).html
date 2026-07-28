@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zene & Karaoke Stúdió</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="adat.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-300 select-none">
+
+  <header class="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 py-2 px-3 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-2 flex-wrap">
+      <div class="flex items-center gap-2">
+        <a id="backLink" href="index.html" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2.5 py-1.5 rounded-xl font-bold active:scale-95 transition-transform">❮ Vissza</a>
+        <button id="homeBtn" class="hidden text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2.5 py-1.5 rounded-xl font-bold active:scale-95 transition-transform">🏠 Témakörök</button>
+        <span class="text-sm font-bold tracking-wide truncate">Zenei Karaoke Stúdió</span>
+      </div>
+      <select id="songSelect" class="hidden text-xs font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-1.5 outline-none max-w-[150px] truncate"></select>
+    </div>
+  </header>
+
+  <audio id="zene" preload="auto"></audio>
+
+  <main id="mainContent" class="flex-1 max-w-2xl w-full mx-auto p-2 md:p-4 flex flex-col gap-2.5 transition-[padding] duration-300">
+
+    <!-- 1) TÉMAKÖR-VÁLASZTÓ KÉPERNYŐ -->
+    <div id="topicScreen" class="flex-1 flex flex-col items-center justify-center text-center py-8 px-2 space-y-3">
+      <p class="text-4xl md:text-5xl">🎧</p>
+      <h1 class="text-2xl md:text-4xl font-black tracking-tight text-slate-800 dark:text-slate-100">Válassz témakört</h1>
+      <p class="text-xs md:text-sm text-slate-400 max-w-sm mx-auto">és kezdj el tanulni angol dalokkal — énekelj, ismételj, és jegyezd meg a szavakat játszva!</p>
+      <div id="topicList" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- 2) DALVÁLASZTÓ KÉPERNYŐ -->
+    <div id="songScreen" class="hidden flex-1 flex-col items-center justify-center text-center py-6 px-2 space-y-3">
+      <button id="backToTopicsBtn" class="self-start text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-2.5 rounded-xl font-bold active:scale-95 transition-transform">❮ Témakörök</button>
+      <p class="text-3xl md:text-4xl pt-2">🎵</p>
+      <h2 id="songScreenTitle" class="text-xl md:text-3xl font-black tracking-tight text-slate-800 dark:text-slate-100"></h2>
+      <p class="text-xs md:text-sm text-slate-400">Válassz dalt ebből a témakörből:</p>
+      <div id="songListInTopic" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- 3) LEJÁTSZÓ FELÜLET -->
+    <div id="playerScreen" class="hidden flex-1 flex-col gap-2.5">
+
+      <div id="loadError" class="hidden bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-xs md:text-sm font-bold rounded-2xl p-4"></div>
+
+      <!-- KONTÉNER A LEJÁTSZÓHOZ ÉS A VERSSZAKVÁLASZTÓHOZ -->
+      <div id="playerControlsSticky" class="sticky top-11 z-20 bg-slate-50 dark:bg-slate-900 pb-1.5">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border shadow-sm divide-y divide-slate-100 dark:divide-slate-700">
+
+          <!-- Versszak gombok és loop infó -->
+          <div class="p-2 space-y-1">
+            <div class="flex justify-between items-center gap-2">
+              <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">Versszakok</h3>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <span id="loopBadge" class="hidden text-[10px] bg-violet-600 text-white px-2 py-0.5 rounded-lg whitespace-nowrap">Ismétlés aktív</span>
+                <button onclick="clearLoop()" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-lg active:scale-95 transition-transform whitespace-nowrap">Loop törlése</button>
+              </div>
+            </div>
+            <div class="flex gap-1 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 min-h-[28px] items-center" id="verseBtnsContainer"></div>
+          </div>
+
+          <!-- Fő vezérlők -->
+          <div class="p-2 space-y-1.5">
+            <div class="flex items-center justify-center gap-2">
+              <button id="seekBackBtn" class="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">⏪ 5mp</button>
+              <button id="playPauseBtn" class="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-xs md:text-sm active:scale-95 transition-transform">▶️ Lejátszás</button>
+              <button id="seekForwardBtn" class="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">5mp ⏩</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="currentTime" class="text-[11px] font-mono text-slate-400 min-w-[28px]">0:00</span>
+              <input type="range" id="progressBar" value="0" class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none accent-violet-600">
+              <span id="duration" class="text-[11px] font-mono text-slate-400 min-w-[28px]">0:00</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 pt-0.5 flex-wrap">
+              <div class="flex items-center gap-1" title="Dal lejátszási sebessége">
+                <span class="text-[11px]">🎵</span>
+                <select id="playbackSpeedSelect" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px] font-bold focus:outline-none focus:ring-1 focus:ring-violet-500">
+                  <option value="0.5">0.5x</option>
+                  <option value="0.75">0.75x</option>
+                  <option value="0.9">0.9x</option>
+                  <option value="1.0" selected>1.0x</option>
+                  <option value="1.25">1.25x</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-1" title="Kiejtés (felolvasás) sebessége">
+                <span class="text-[11px]">🗣️</span>
+                <select id="ttsSpeedSelect" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px] font-bold focus:outline-none focus:ring-1 focus:ring-violet-500">
+                  <option value="0.6">0.6x</option>
+                  <option value="0.8" selected>0.8x</option>
+                  <option value="1.0">1.0x</option>
+                  <option value="1.2">1.2x</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-1" title="Szünet hossza ismétlő gyakorlásnál">
+                <span class="text-[11px]">⏸️</span>
+                <select id="repeatPauseSelect" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px] font-bold focus:outline-none focus:ring-1 focus:ring-violet-500">
+                  <option value="1" selected>Normál szünet</option>
+                  <option value="1.5">Hosszabb szünet</option>
+                  <option value="2">Hosszú szünet</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Dalszöveg doboz -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl md:rounded-3xl border p-3 md:p-6 space-y-4 shadow-sm" id="lyricsBox"></div>
+
+    </div>
+
+    <div id="emptyState" class="hidden bg-white dark:bg-slate-800 rounded-3xl border p-6 text-center space-y-2">
+      <p class="text-3xl">🎼</p>
+      <p class="font-bold text-sm md:text-base">Még nincs feltöltve témakör/dal ebbe a sablonba.</p>
+      <p class="text-xs text-slate-400">Töltsd ki az adat.js fájlban a TOPICS tömböt, majd töltsd fel az mp3-akat.</p>
+    </div>
+
+  </main>
+
+  <!-- MÉLYTANULÁS PANEL (alul lebegő, aktív gyakorlás közben látszik) -->
+  <div id="deepLearnPanel" class="hidden fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-violet-700 to-violet-600 text-white shadow-[0_-8px_24px_rgba(0,0,0,0.25)]">
+    <div class="max-w-2xl mx-auto p-3 md:p-4 space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <span id="deepLearnPhaseLabel" class="text-[11px] md:text-xs font-bold uppercase tracking-wider text-violet-100"></span>
+        <div class="flex items-center gap-2">
+          <button id="deepLearnStartBtn" class="text-xs bg-white text-violet-700 hover:bg-violet-50 px-3 py-1.5 rounded-lg font-extrabold active:scale-95 transition-transform flex-shrink-0 shadow-sm">▶️ Kezdés</button>
+          <button id="deepLearnStopBtn" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-bold active:scale-95 transition-transform flex-shrink-0">⏹ Kilépés</button>
+        </div>
+      </div>
+      <div>
+        <p id="deepLearnLineText" class="text-base md:text-lg font-black leading-snug"></p>
+        <p id="deepLearnLineHun" class="text-xs text-violet-200 mt-0.5"></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex-1 h-2.5 bg-white/20 rounded-full overflow-hidden">
+          <div id="deepLearnProgressBar" class="h-full bg-white rounded-full transition-all duration-300" style="width:0%"></div>
+        </div>
+        <span id="deepLearnCountText" class="text-2xl font-black tabular-nums flex-shrink-0 min-w-[3.5rem] text-right"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById("zene");
+    const synth = window.speechSynthesis;
+
+    function cleanTextForSpeech(text) { return text.replace(/\*\*/g, ''); }
+
+    function speakInstruction(text, onDone) {
+      if (!synth) { onDone(); return; }
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hu-HU';
+      utterance.rate = 0.95;
+      let done = false;
+      const finish = () => { if (!done) { done = true; onDone(); } };
+      utterance.onend = finish;
+      utterance.onerror = finish;
+      synth.speak(utterance);
+      setTimeout(finish, 4000);
+    }
+
+    window.speakKeywordOnly = function(event, word) {
+      if (event) event.stopPropagation();
+      if (!synth) return;
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = 'en-US';
+      utterance.rate = parseFloat(ttsSpeedSelect ? ttsSpeedSelect.value : 0.8) || 0.8;
+      synth.speak(utterance);
+    };
+
+    function speakSentence(text) {
+      if (!synth) return;
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanTextForSpeech(text));
+      utterance.lang = 'en-US';
+      utterance.rate = parseFloat(ttsSpeedSelect ? ttsSpeedSelect.value : 0.8) || 0.8;
+      synth.speak(utterance);
+    }
+
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const seekBackBtn = document.getElementById("seekBackBtn");
+    const seekForwardBtn = document.getElementById("seekForwardBtn");
+    const progressBar = document.getElementById("progressBar");
+    const currentTimeText = document.getElementById("currentTime");
+    const durationText = document.getElementById("duration");
+    const playbackSpeedSelect = document.getElementById("playbackSpeedSelect");
+    const ttsSpeedSelect = document.getElementById("ttsSpeedSelect");
+    const repeatPauseSelect = document.getElementById("repeatPauseSelect");
+    const lyricsBox = document.getElementById("lyricsBox");
+    const verseBtnsContainer = document.getElementById("verseBtnsContainer");
+    const loopBadge = document.getElementById("loopBadge");
+    const emptyState = document.getElementById("emptyState");
+    const loadError = document.getElementById("loadError");
+    const backLink = document.getElementById("backLink");
+    const homeBtn = document.getElementById("homeBtn");
+    const songSelect = document.getElementById("songSelect");
+
+    const topicScreen = document.getElementById("topicScreen");
+    const topicList = document.getElementById("topicList");
+    const songScreen = document.getElementById("songScreen");
+    const songScreenTitle = document.getElementById("songScreenTitle");
+    const songListInTopic = document.getElementById("songListInTopic");
+    const backToTopicsBtn = document.getElementById("backToTopicsBtn");
+    const playerScreen = document.getElementById("playerScreen");
+    const playerControlsSticky = document.getElementById("playerControlsSticky");
+
+    let loopStart = null;
+    let loopEnd = null;
+    let repeatPauseMode = false;
+    let repeatPracticeKey = null;
+    let activeLoopKey = null;
+    let repeatTimeoutHandle = null;
+    let lastActiveLineKey = null;
+    let isMusicPlaying = false;
+    let currentSong = null;
+    let lineTags = {}; 
+    let currentTopicIndex = 0;
+    let currentSongIndex = 0;
+
+    // ---- Mélytanulás állapota ----
+    const deepLearnPanel = document.getElementById("deepLearnPanel");
+    const deepLearnPhaseLabel = document.getElementById("deepLearnPhaseLabel");
+    const deepLearnLineText = document.getElementById("deepLearnLineText");
+    const deepLearnLineHun = document.getElementById("deepLearnLineHun");
+    const deepLearnProgressBar = document.getElementById("deepLearnProgressBar");
+    const deepLearnCountText = document.getElementById("deepLearnCountText");
+    const deepLearnStartBtn = document.getElementById("deepLearnStartBtn");
+    const deepLearnStopBtn = document.getElementById("deepLearnStopBtn");
+    const mainContent = document.getElementById("mainContent");
+
+    let deepLearnActive = false;
+    let deepLearnStarted = false; 
+    let deepLearnLineKey = null;
+    let deepLearnStart = null;
+    let deepLearnEnd = null;
+    let deepLearnPhase = 0;      
+    let deepLearnCount = 1; 
+    let deepLearnWaiting = false; 
+    let deepLearnTimeoutHandle = null;
+    const DEEP_LEARN_TARGETS = { 1: 10, 2: 5, 3: 10 };
+    const DEEP_LEARN_LABELS = {
+      1: "🔁 1. szakasz — Hallgatás",
+      2: "🗣️ 2. szakasz — Olvasd fel hangosan",
+      3: "🧠 3. szakasz — Mondd fejből, hallgatás nélkül"
+    };
+
+    if (typeof BACK_LINK !== "undefined") backLink.href = BACK_LINK;
+
+    const topics = (typeof TOPICS !== "undefined") ? TOPICS : [];
+
+    const flatSongs = [];
+    topics.forEach((topic, tIdx) => {
+      (topic.songs || []).forEach((song, sIdx) => {
+        flatSongs.push({ topicIndex: tIdx, songIndex: sIdx, topic, song });
+      });
+    });
+
+    function showTopicScreen() {
+      topicScreen.classList.remove('hidden');
+      songScreen.classList.add('hidden');
+      songScreen.classList.remove('flex');
+      playerScreen.classList.add('hidden');
+      playerScreen.classList.remove('flex');
+      songSelect.classList.add('hidden');
+      homeBtn.classList.add('hidden');
+    }
+
+    function showSongScreen(topicIndex) {
+      currentTopicIndex = topicIndex;
+      const topic = topics[topicIndex];
+      songScreenTitle.textContent = topic.title;
+
+      songListInTopic.innerHTML = '';
+      (topic.songs || []).forEach((song, sIdx) => {
+        const card = document.createElement('button');
+        card.className = "w-full flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-violet-400 rounded-2xl px-4 py-3.5 shadow-sm transition-all text-left active:scale-[0.98]";
+        card.innerHTML = `
+          <span class="font-bold text-base md:text-lg text-slate-800 dark:text-slate-100">${song.title}</span>
+          <span class="text-violet-500 text-lg">▶️</span>
+        `;
+        card.addEventListener('click', () => selectSong(topicIndex, sIdx));
+        songListInTopic.appendChild(card);
+      });
+
+      topicScreen.classList.add('hidden');
+      songScreen.classList.remove('hidden');
+      songScreen.classList.add('flex');
+      playerScreen.classList.add('hidden');
+      playerScreen.classList.remove('flex');
+      songSelect.classList.add('hidden');
+      homeBtn.classList.add('hidden');
+    }
+
+    function buildTopicList() {
+      topicList.innerHTML = '';
+      topics.forEach((topic, tIdx) => {
+        const count = (topic.songs || []).length;
+        const card = document.createElement('button');
+        card.className = "w-full flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-violet-400 rounded-2xl px-4 py-3.5 shadow-sm transition-all text-left active:scale-[0.98]";
+        card.innerHTML = `
+          <span>
+            <span class="block font-bold text-base md:text-lg text-slate-800 dark:text-slate-100">${topic.title}</span>
+            <span class="block text-xs text-slate-400">${count} dal</span>
+          </span>
+          <span class="text-violet-500 text-lg">❯</span>
+        `;
+        card.addEventListener('click', () => showSongScreen(tIdx));
+        topicList.appendChild(card);
+      });
+    }
+
+    function buildSongSelect() {
+      songSelect.innerHTML = '';
+      topics.forEach((topic, tIdx) => {
+        const group = document.createElement('optgroup');
+        group.label = topic.title;
+        (topic.songs || []).forEach((song, sIdx) => {
+          const opt = document.createElement('option');
+          opt.value = `${tIdx}-${sIdx}`;
+          opt.textContent = song.title;
+          group.appendChild(opt);
+        });
+        songSelect.appendChild(group);
+      });
+    }
+
+    songSelect.addEventListener('change', () => {
+      const [tIdx, sIdx] = songSelect.value.split('-').map(Number);
+      selectSong(tIdx, sIdx);
+    });
+
+    homeBtn.addEventListener('click', showTopicScreen);
+    backToTopicsBtn.addEventListener('click', showTopicScreen);
+
+    function selectSong(topicIndex, songIndex) {
+      currentTopicIndex = topicIndex;
+      currentSongIndex = songIndex;
+
+      topicScreen.classList.add('hidden');
+      songScreen.classList.add('hidden');
+      songScreen.classList.remove('flex');
+      playerScreen.classList.remove('hidden');
+      playerScreen.classList.add('flex');
+      songSelect.classList.remove('hidden');
+      homeBtn.classList.remove('hidden');
+
+      songSelect.value = `${topicIndex}-${songIndex}`;
+      loadSong(topics[topicIndex].songs[songIndex]);
+    }
+
+    function tagKey(vIdx, lIdx) {
+      return `${currentSong ? currentSong.id : ''}__${vIdx}-${lIdx}`;
+    }
+
+    function playBell(success = false) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const freqs = success ? [523.25, 659.25, 783.99] : [880, 1108.73];
+        freqs.forEach((f, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          gain.gain.setValueAtTime(0.0001, now + i * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.28, now + i * 0.06 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.06 + 1.1);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now + i * 0.06);
+          osc.stop(now + i * 0.06 + 1.2);
+        });
+      } catch (e) { console.log("Csengőhang hiba:", e); }
+    }
+
+    function highlightDeepLearnButton(key) {
+      if (deepLearnLineKey && deepLearnLineKey !== key) {
+        const prevBtn = document.getElementById(`deepbtn-${deepLearnLineKey}`);
+        if (prevBtn) {
+          prevBtn.classList.remove('text-violet-600', 'dark:text-violet-400', 'bg-violet-100', 'dark:bg-violet-900/40');
+          prevBtn.classList.add('text-slate-400', 'dark:text-slate-500');
+        }
+      }
+      if (key) {
+        const btn = document.getElementById(`deepbtn-${key}`);
+        if (btn) {
+          btn.classList.remove('text-slate-400', 'dark:text-slate-500');
+          btn.classList.add('text-violet-600', 'dark:text-violet-400', 'bg-violet-100', 'dark:bg-violet-900/40');
+        }
+      }
+    }
+
+    function cancelDeepLearnTimeout() {
+      if (deepLearnTimeoutHandle) {
+        clearTimeout(deepLearnTimeoutHandle);
+        deepLearnTimeoutHandle = null;
+      }
+    }
+
+    function toggleDeepLearning(vIdx, lIdx, start, end, text, hungarian) {
+      const key = `${vIdx}-${lIdx}`;
+      if (deepLearnActive && deepLearnLineKey === key) {
+        stopDeepLearning();
+        return;
+      }
+      cancelRepeatTimeout();
+      repeatPauseMode = false;
+      highlightRepeatButton(null);
+      highlightLoopButton(null);
+      loopStart = null;
+      loopEnd = null;
+      loopBadge.classList.add('hidden');
+
+      deepLearnActive = true;
+      deepLearnStarted = false;
+      deepLearnLineKey = key;
+      deepLearnStart = start;
+      deepLearnEnd = end;
+
+      deepLearnLineText.textContent = cleanTextForSpeech(text);
+      deepLearnLineHun.textContent = hungarian || "";
+      highlightDeepLearnButton(key);
+
+      deepLearnPhaseLabel.textContent = "🧠 Mélytanulás — Készen állsz?";
+      deepLearnCountText.textContent = "";
+      deepLearnProgressBar.style.width = "0%";
+      deepLearnStartBtn.classList.remove('hidden');
+
+      cancelDeepLearnTimeout();
+      deepLearnPanel.classList.remove('hidden');
+      if (mainContent) mainContent.classList.add('pb-32');
+    }
+
+    deepLearnStartBtn.addEventListener('click', () => {
+      deepLearnStarted = true;
+      deepLearnStartBtn.classList.add('hidden');
+      deepLearnPhase = 1;
+      deepLearnCount = 1;
+      deepLearnPhaseLabel.textContent = "🔔 Készülj...";
+      updateDeepLearnDisplay();
+      cancelDeepLearnTimeout();
+      deepLearnTimeoutHandle = setTimeout(() => {
+        if (deepLearnActive && deepLearnStarted) playDeepLearnIteration();
+      }, 400);
+    });
+
+    function playDeepLearnIteration() {
+      deepLearnWaiting = false;
+      audio.currentTime = deepLearnStart;
+      audio.play().catch(e => console.log("Lejátszási hiba:", e));
+      isMusicPlaying = true;
+      playPauseBtn.textContent = "⏸️ Szünet";
+      updateDeepLearnDisplay();
+    }
+
+    function updateDeepLearnDisplay() {
+      const target = DEEP_LEARN_TARGETS[deepLearnPhase];
+      deepLearnPhaseLabel.textContent = DEEP_LEARN_LABELS[deepLearnPhase];
+      deepLearnCountText.textContent = `${deepLearnCount}/${target}`;
+      deepLearnProgressBar.style.width = `${Math.min(100, (deepLearnCount / target) * 100)}%`;
+    }
+
+    function handleDeepLearnLineEnd() {
+      const target = DEEP_LEARN_TARGETS[deepLearnPhase];
+
+      if (deepLearnCount < target) {
+        audio.pause();
+        cancelDeepLearnTimeout();
+
+        let pauseMs = 150; 
+        if (deepLearnPhase > 1) {
+          const pauseMultiplier = parseFloat(repeatPauseSelect.value) || 1;
+          pauseMs = Math.max(3500 * pauseMultiplier, (deepLearnEnd - deepLearnStart) * 1000 * 2.2 * pauseMultiplier);
+        }
+
+        deepLearnTimeoutHandle = setTimeout(() => {
+          if (!deepLearnActive || !deepLearnStarted) return;
+          deepLearnCount++;
+          playDeepLearnIteration();
+        }, pauseMs);
+
+      } else {
+        audio.pause();
+        cancelDeepLearnTimeout();
+
+        if (deepLearnPhase < 3) {
+          const nextPhase = deepLearnPhase + 1;
+          deepLearnPhaseLabel.textContent = "🔔 Készülj, új feladat jön...";
+          deepLearnCountText.textContent = "";
+          deepLearnProgressBar.style.width = "0%";
+
+          deepLearnTimeoutHandle = setTimeout(() => {
+            if (!deepLearnActive || !deepLearnStarted) return;
+            const instructionText = nextPhase === 2 ? "Olvasd fel a mondatot!" : "Ismételd utánam, fejből!";
+            speakInstruction(instructionText, () => {
+              if (!deepLearnActive || !deepLearnStarted) return;
+              deepLearnTimeoutHandle = setTimeout(() => {
+                if (!deepLearnActive || !deepLearnStarted) return;
+                deepLearnPhase = nextPhase;
+                deepLearnCount = 1; 
+                updateDeepLearnDisplay();
+                playDeepLearnIteration();
+              }, 2000);
+            });
+          }, 1200);
+        } else {
+          deepLearnTimeoutHandle = setTimeout(() => {
+            if (!deepLearnActive || !deepLearnStarted) return;
+            playBell(true);
+            finishDeepLearning();
+          }, 800);
+        }
+      }
+    }
+
+    function finishDeepLearning() {
+      cancelDeepLearnTimeout();
+      audio.pause();
+      isMusicPlaying = false;
+      playPauseBtn.textContent = "▶️ Lejátszás";
+      deepLearnPhaseLabel.textContent = "🎉 Kész! Szép munka!";
+      deepLearnCountText.textContent = "✔";
+      deepLearnProgressBar.style.width = "100%";
+      highlightDeepLearnButton(null);
+    }
+
+    function stopDeepLearning() {
+      cancelDeepLearnTimeout();
+      if (synth) synth.cancel();
+      deepLearnActive = false;
+      deepLearnStarted = false;
+      deepLearnWaiting = false;
+      deepLearnLineKey = null;
+      deepLearnPanel.classList.add('hidden');
+      if (mainContent) mainContent.classList.remove('pb-32');
+      highlightDeepLearnButton(null);
+      audio.pause();
+      isMusicPlaying = false;
+      playPauseBtn.textContent = "▶️ Lejátszás";
+    }
+
+    deepLearnStopBtn.addEventListener('click', stopDeepLearning);
+
+    function setLineTag(vIdx, lIdx, color) {
+      const key = tagKey(vIdx, lIdx);
+      if (lineTags[key] === color) delete lineTags[key];
+      else lineTags[key] = color;
+      applyLineTagVisual(vIdx, lIdx);
+    }
+
+    function applyLineTagVisual(vIdx, lIdx) {
+      const key = tagKey(vIdx, lIdx);
+      const color = lineTags[key];
+      const tagColors = { yellow: '#d4a017', orange: '#e8703a', red: '#c94a4a' };
+      const bar = document.getElementById(`tagbar-${vIdx}-${lIdx}`);
+      if (bar) bar.style.backgroundColor = color ? tagColors[color] : 'transparent';
+      ['yellow', 'orange', 'red'].forEach(c => {
+        const dot = document.getElementById(`dot-${vIdx}-${lIdx}-${c}`);
+        if (!dot) return;
+        if (color === c) {
+          dot.style.backgroundColor = tagColors[c];
+          dot.classList.add('scale-110');
+        } else {
+          dot.style.backgroundColor = 'transparent';
+          dot.classList.remove('scale-110');
+        }
+      });
+    }
+
+    function loadSong(song) {
+      currentSong = song;
+      lastActiveLineKey = null;
+
+      audio.pause();
+      isMusicPlaying = false;
+      playPauseBtn.textContent = "▶️ Lejátszás";
+      clearLoop();
+      loadError.classList.add('hidden');
+
+      audio.src = currentSong.localAudio || "";
+      audio.load();
+      audio.playbackRate = parseFloat(playbackSpeedSelect.value) || 1.0;
+
+      audio.onerror = function() {
+        if (currentSong.fallbackAudio && audio.src.indexOf(currentSong.fallbackAudio) === -1) {
+          audio.src = currentSong.fallbackAudio;
+          audio.load();
+        } else {
+          loadError.textContent = `Nem sikerült betölteni a(z) "${currentSong.title}" hangfájlját.`;
+          loadError.classList.remove('hidden');
+        }
+      };
+
+      buildUI();
+    }
+
+    function buildUI() {
+      const hasSong = currentSong && currentSong.songStructureData && currentSong.songStructureData.length > 0;
+      emptyState.classList.toggle('hidden', hasSong);
+      if (!hasSong) {
+        verseBtnsContainer.innerHTML = '';
+        lyricsBox.innerHTML = '';
+        return;
+      }
+
+      const structure = currentSong.songStructureData;
+
+      verseBtnsContainer.innerHTML = '';
+      structure.forEach((verse) => {
+        const btn = document.createElement('button');
+        btn.className = "py-1 px-2.5 text-[11px] font-bold bg-slate-100 dark:bg-slate-700 rounded-xl hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-all text-center active:scale-95 flex-shrink-0 whitespace-nowrap";
+        btn.textContent = verse.title;
+        btn.addEventListener('click', () => setLoop(verse.start, verse.end, verse.title));
+        verseBtnsContainer.appendChild(btn);
+      });
+
+      lyricsBox.innerHTML = '';
+      structure.forEach((verse, vIdx) => {
+        const vDiv = document.createElement('div'); vDiv.className = "space-y-1.5 p-1";
+        const vTitle = document.createElement('h4'); vTitle.className = "text-xs font-bold text-slate-400 tracking-wider mb-1.5";
+        vTitle.textContent = verse.title; vDiv.appendChild(vTitle);
+
+        verse.lines.forEach((line, lIdx) => {
+          const hasKeyword = /\*\*(.*?)\*\*/.test(line.text);
+
+          const lDiv = document.createElement('div');
+          lDiv.className = "p-2 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition transition-all border border-transparent flex items-stretch gap-2";
+          lDiv.id = `line-${vIdx}-${lIdx}`;
+          const lineKey = `${vIdx}-${lIdx}`;
+          lDiv.addEventListener('click', () => setLoop(line.start, line.end, "Sor", lineKey));
+
+          const tagBar = document.createElement('div');
+          tagBar.id = `tagbar-${vIdx}-${lIdx}`;
+          tagBar.className = "w-[3px] self-stretch rounded-full flex-shrink-0 transition-colors";
+          tagBar.style.backgroundColor = 'transparent';
+
+          const contentCol = document.createElement('div'); contentCol.className = "flex-1 min-w-0";
+
+          const textWrap = document.createElement('div');
+          const eng = document.createElement('p'); eng.className = "text-sm md:text-base font-semibold break-words leading-snug";
+          eng.innerHTML = line.text.replace(/\*\*(.*?)\*\*/g, (m, word) => {
+            const clean = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+            return `<span onclick="speakKeywordOnly(event, '${clean.replace(/'/g, "\\'")}')" class="text-violet-600 dark:text-violet-400 font-black underline decoration-violet-300 dark:decoration-violet-700 decoration-2 underline-offset-4 whitespace-nowrap">${word}<svg class="inline-block w-3 h-3 ml-0.5 align-[-1px] opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></span>`;
+          });
+          const hun = document.createElement('p'); hun.className = "text-xs text-slate-400 mt-0.5";
+          hun.textContent = line.hungarian;
+          textWrap.appendChild(eng); textWrap.appendChild(hun);
+          contentCol.appendChild(textWrap);
+
+          const bottomRow = document.createElement('div');
+          bottomRow.className = "flex items-center justify-between gap-2 mt-1";
+
+          const tagRow = document.createElement('div');
+          tagRow.className = "flex items-center gap-2";
+          if (hasKeyword) {
+            const tagColors = { yellow: '#d4a017', orange: '#e8703a', red: '#c94a4a' };
+            const tagLabels = { yellow: 'Jól megy', orange: 'Kicsit nehéz', red: 'Teljes homály' };
+            Object.keys(tagColors).forEach(color => {
+              const dot = document.createElement('button');
+              dot.id = `dot-${vIdx}-${lIdx}-${color}`;
+              dot.title = tagLabels[color];
+              dot.className = "w-2.5 h-2.5 rounded-full flex-shrink-0 active:scale-90 transition-all border-[1.5px]";
+              dot.style.borderColor = tagColors[color];
+              dot.style.backgroundColor = 'transparent';
+              dot.addEventListener('click', (e) => { e.stopPropagation(); setLineTag(vIdx, lIdx, color); });
+              tagRow.appendChild(dot);
+            });
+          }
+
+          const iconRow = document.createElement('div');
+          iconRow.className = "flex items-center gap-0.5 flex-shrink-0";
+
+          const speakBtn = document.createElement('button');
+          speakBtn.className = "flex-shrink-0 p-1 rounded-lg text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-200/70 dark:hover:bg-slate-600/50 active:scale-90 transition-all";
+          speakBtn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>`;
+          speakBtn.title = "Mondat felolvasása";
+          speakBtn.addEventListener('click', (e) => { e.stopPropagation(); speakSentence(line.text); });
+
+          const loopBtn = document.createElement('button');
+          loopBtn.id = `loopbtn-${lineKey}`;
+          loopBtn.className = "flex-shrink-0 p-1 rounded-lg text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-200/70 dark:hover:bg-slate-600/50 active:scale-90 transition-all";
+          loopBtn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 12a5.5 5.5 0 1 1-1.85-4.12"/><path d="M17.5 4.2v4h-4"/></svg>`;
+          loopBtn.title = "Sor végtelenített loopolása";
+          loopBtn.addEventListener('click', (e) => { e.stopPropagation(); setLoop(line.start, line.end, "Sor", lineKey); });
+
+          const repeatBtn = document.createElement('button');
+          repeatBtn.id = `repeatbtn-${lineKey}`;
+          repeatBtn.className = "flex-shrink-0 p-1 rounded-lg text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-200/70 dark:hover:bg-slate-600/50 active:scale-90 transition-all";
+          repeatBtn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1 21 6l-4 3.9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 21.9 3 18l4-3.9"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/><rect x="10.2" y="10" width="1.5" height="4" rx="0.5" fill="currentColor" stroke="none"/><rect x="12.7" y="10" width="1.5" height="4" rx="0.5" fill="currentColor" stroke="none"/></svg>`;
+          repeatBtn.title = "Ismétlő gyakorlás";
+          repeatBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleRepeatPractice(lineKey, line.start, line.end, "Sor"); });
+
+          iconRow.appendChild(speakBtn); iconRow.appendChild(loopBtn); iconRow.appendChild(repeatBtn);
+
+          if (hasKeyword) {
+            const deepBtn = document.createElement('button');
+            deepBtn.id = `deepbtn-${lineKey}`;
+            deepBtn.className = "flex-shrink-0 p-1 rounded-lg text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-200/70 dark:hover:bg-slate-600/50 active:scale-90 transition-all";
+            deepBtn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>`;
+            deepBtn.title = "Mélytanulás: hallgatás → felolvasás → felidézés";
+            deepBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDeepLearning(vIdx, lIdx, line.start, line.end, line.text, line.hungarian); });
+            iconRow.appendChild(deepBtn);
+          }
+
+          bottomRow.appendChild(tagRow);
+          bottomRow.appendChild(iconRow);
+          contentCol.appendChild(bottomRow);
+
+          lDiv.appendChild(tagBar); lDiv.appendChild(contentCol);
+
+          vDiv.appendChild(lDiv);
+          if (hasKeyword) applyLineTagVisual(vIdx, lIdx);
+        });
+        lyricsBox.appendChild(vDiv);
+      });
+    }
+
+    function setLoop(start, end, label, key = null) {
+      if (deepLearnActive) stopDeepLearning();
+      cancelRepeatTimeout();
+      repeatPauseMode = false;
+      highlightRepeatButton(null);
+      highlightLoopButton(key);
+      loopStart = start;
+      loopEnd = end;
+      audio.currentTime = loopStart;
+      loopBadge.textContent = `Loop: ${label}`;
+      loopBadge.classList.remove('hidden');
+      audio.play().catch(e => console.log("Lejátszási hiba:", e));
+      isMusicPlaying = true;
+      playPauseBtn.textContent = "⏸️ Szünet";
+    }
+
+    function cancelRepeatTimeout() {
+      if (repeatTimeoutHandle) {
+        clearTimeout(repeatTimeoutHandle);
+        repeatTimeoutHandle = null;
+      }
+    }
+
+    function highlightLoopButton(key) {
+      if (activeLoopKey && activeLoopKey !== key) {
+        const prevBtn = document.getElementById(`loopbtn-${activeLoopKey}`);
+        if (prevBtn) {
+          prevBtn.classList.remove('text-violet-600', 'dark:text-violet-400', 'bg-violet-100', 'dark:bg-violet-900/40');
+          prevBtn.classList.add('text-slate-400', 'dark:text-slate-500');
+        }
+      }
+      activeLoopKey = key;
+      if (key) {
+        const btn = document.getElementById(`loopbtn-${key}`);
+        if (btn) {
+          btn.classList.remove('text-slate-400', 'dark:text-slate-500');
+          btn.classList.add('text-violet-600', 'dark:text-violet-400', 'bg-violet-100', 'dark:bg-violet-900/40');
+        }
+      }
+    }
+
+    function highlightRepeatButton(key) {
+      if (repeatPracticeKey && repeatPracticeKey !== key) {
+        const prevBtn = document.getElementById(`repeatbtn-${repeatPracticeKey}`);
+        if (prevBtn) {
+          prevBtn.classList.remove('text-violet-600', 'dark:text-violet-400', 'bg-violet-100', 'dark:bg-violet-900/40');
+          prevBtn.classList.add('text-slate-400', 'dark:text-slate-500');
+        }
+      }
+      repeatPracticeKey = key;
+      if (key) {
+        const btn = document.getElementById(`repeatbtn-${key}`);
+        if (btn) {
+          btn.classList.remove('text-slate-400', 'dark:text-slate-500');
+          btn.classList.add('text-violet-600', 'dark:text-violet-400', 'bg-violet-100', 'dark:bg-violet-900/40');
+        }
+      }
+    }
+
+    function toggleRepeatPractice(key, start, end, label) {
+      if (repeatPauseMode && repeatPracticeKey === key) {
+        clearLoop();
+        return;
+      }
+      if (deepLearnActive) stopDeepLearning();
+      cancelRepeatTimeout();
+      highlightLoopButton(null);
+      loopStart = start;
+      loopEnd = end;
+      repeatPauseMode = true;
+      highlightRepeatButton(key);
+      audio.currentTime = loopStart;
+      audio.play().catch(e => console.log("Lejátszási hiba:", e));
+      isMusicPlaying = true;
+      playPauseBtn.textContent = "⏸️ Szünet";
+      loopBadge.textContent = `🗣️ Ismétlés: ${label}`;
+      loopBadge.classList.remove('hidden');
+    }
+
+    function clearLoop() {
+      loopStart = null;
+      loopEnd = null;
+      repeatPauseMode = false;
+      cancelRepeatTimeout();
+      highlightRepeatButton(null);
+      highlightLoopButton(null);
+      loopBadge.classList.add('hidden');
+      if (deepLearnActive) stopDeepLearning();
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+      if (isMusicPlaying) {
+        audio.pause();
+        isMusicPlaying = false;
+        playPauseBtn.textContent = "▶️ Lejátszás";
+      } else {
+        audio.play().catch(e => console.log(e));
+        isMusicPlaying = true;
+        playPauseBtn.textContent = "⏸️ Szünet";
+      }
+    });
+
+    seekBackBtn.addEventListener('click', () => {
+      if (!isNaN(audio.duration)) {
+        clearLoop();
+        audio.currentTime = Math.max(0, audio.currentTime - 5);
+      }
+    });
+
+    seekForwardBtn.addEventListener('click', () => {
+      if (!isNaN(audio.duration)) {
+        clearLoop();
+        audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+      }
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      let cur = audio.currentTime;
+      const dur = audio.duration || 100;
+      if (!isNaN(audio.duration)) {
+        progressBar.value = (cur / dur) * 100;
+        currentTimeText.textContent = formatTime(cur);
+        durationText.textContent = formatTime(dur);
+      }
+
+      if (deepLearnActive && deepLearnStarted) {
+        if (cur >= deepLearnEnd) {
+          if (!deepLearnWaiting) {
+            deepLearnWaiting = true;
+            handleDeepLearnLineEnd();
+          }
+          return;
+        }
+      } else if (loopEnd !== null && cur >= loopEnd) {
+        if (repeatPauseMode) {
+          audio.pause();
+          const pauseMultiplier = parseFloat(repeatPauseSelect.value) || 1;
+          const pauseMs = Math.max(1500 * pauseMultiplier, (loopEnd - loopStart) * 1000 * pauseMultiplier);
+          const capturedStart = loopStart;
+          const capturedEnd = loopEnd;
+          cancelRepeatTimeout();
+          repeatTimeoutHandle = setTimeout(() => {
+            repeatTimeoutHandle = null;
+            if (repeatPauseMode && loopStart === capturedStart && loopEnd === capturedEnd) {
+              audio.currentTime = capturedStart;
+              audio.play().catch(e => console.log("Lejátszási hiba:", e));
+            }
+          }, pauseMs);
+          return;
+        } else {
+          audio.currentTime = loopStart;
+          cur = loopStart;
+        }
+      }
+
+      if (currentSong && currentSong.songStructureData) {
+        let activeKey = null;
+        let activeIsVerseStart = false;
+        currentSong.songStructureData.forEach((verse, vIdx) => {
+          verse.lines.forEach((line, lIdx) => {
+            const el = document.getElementById(`line-${vIdx}-${lIdx}`);
+            if (el) {
+              if (cur >= line.start && cur < line.end) {
+                el.classList.add('bg-violet-50', 'dark:bg-violet-900/30', 'border-violet-300', 'scale-[1.01]');
+                activeKey = `${vIdx}-${lIdx}`;
+                activeIsVerseStart = (lIdx === 0);
+              } else {
+                el.classList.remove('bg-violet-50', 'dark:bg-violet-900/30', 'border-violet-300', 'scale-[1.01]');
+              }
+            }
+          });
+        });
+
+        if (activeKey && activeKey !== lastActiveLineKey) {
+          lastActiveLineKey = activeKey;
+          if (activeIsVerseStart) {
+            const el = document.getElementById(`line-${activeKey}`);
+            if (el && playerControlsSticky) {
+              const stickyHeight = playerControlsSticky.offsetHeight + 50;
+              const elementPosition = el.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.pageYOffset - stickyHeight;
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }
+      }
+    });
+
+    progressBar.addEventListener('input', (e) => {
+      if (!isNaN(audio.duration)) {
+        clearLoop();
+        audio.currentTime = (e.target.value / 100) * audio.duration;
+      }
+    });
+
+    playbackSpeedSelect.addEventListener('change', () => {
+      audio.playbackRate = parseFloat(playbackSpeedSelect.value) || 1.0;
+    });
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    if (flatSongs.length) {
+      buildTopicList();
+      buildSongSelect();
+
+      const params = new URLSearchParams(window.location.search);
+      const requestedId = params.get('song');
+      if (requestedId) {
+        const found = flatSongs.find(f => f.song.id === requestedId);
+        if (found) selectSong(found.topicIndex, found.songIndex);
+      }
+    } else {
+      topicScreen.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
