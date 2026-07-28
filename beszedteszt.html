@@ -80,10 +80,10 @@
       </div>
 
       <div class="flip-perspective w-full">
-        <div id="quizBox" class="flip-card w-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700/60 min-h-[320px] overflow-hidden cursor-pointer" onclick="revealAnswer()">
+        <div id="quizBox" class="flip-card w-full min-h-[320px] cursor-pointer" onclick="revealAnswer()">
 
           <!-- ELŐLAP: magyar mondat + mikrofon -->
-          <div id="cardFront" class="flip-face flex flex-col items-center justify-center text-center gap-5 p-8 md:p-12">
+          <div id="cardFront" class="flip-face flex flex-col items-center justify-center text-center gap-5 p-8 md:p-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700/60 overflow-hidden">
             <p id="quizHungarian" class="text-xl md:text-2xl font-medium text-slate-800 dark:text-slate-200 leading-normal"></p>
             <div class="flex flex-col items-center gap-2">
               <button id="micBtn" onclick="event.stopPropagation(); toggleSttListening();" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95">
@@ -95,7 +95,7 @@
           </div>
 
           <!-- HÁTLAP: angol mondat + hanglejátszás -->
-          <div id="cardBack" class="flip-face flip-face-back flex flex-col items-center justify-center text-center gap-4 p-8 md:p-12">
+          <div id="cardBack" class="flip-face flip-face-back flex flex-col items-center justify-center text-center gap-4 p-8 md:p-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700/60 overflow-hidden">
             <p id="quizEnglish" class="text-2xl md:text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-relaxed"></p>
             <div class="flex items-center justify-center gap-2 flex-wrap pt-1">
               <button onclick="event.stopPropagation(); playCurrentCardAudio();" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 rounded-xl text-xs font-bold hover:bg-brand-100 transition active:scale-95">
