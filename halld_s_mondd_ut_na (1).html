@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halld & Mondd Utána</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="adat.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-300">
+
+  <header class="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 py-2 px-3 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-2xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <a id="backLink" href="index.html" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2.5 py-1.5 rounded-xl font-bold active:scale-95 transition-transform flex-shrink-0">❮ Vissza</a>
+        <button id="homeBtn" class="hidden text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2.5 py-1.5 rounded-xl font-bold active:scale-95 transition-transform flex-shrink-0">🏠 Témakörök</button>
+        <div class="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+          <span class="text-xs md:text-sm font-bold tracking-wide truncate flex-shrink-0">🎤 Halld & Mondd Utána</span>
+          <span class="text-[10px] text-violet-600 dark:text-violet-400 font-bold uppercase tracking-wider truncate">Hallgasd és ismételd a mondatokat</span>
+        </div>
+      </div>
+      <select id="songSelect" class="hidden text-xs font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-1.5 outline-none max-w-[130px] truncate flex-shrink-0"></select>
+    </div>
+  </header>
+
+  <audio id="zene" preload="auto"></audio>
+
+  <main class="flex-1 max-w-2xl w-full mx-auto p-2 md:p-4 flex flex-col gap-2.5">
+
+    <!-- 1) TÉMAKÖR-VÁLASZTÓ -->
+    <div id="topicScreen" class="flex-1 flex flex-col items-center justify-center text-center py-8 px-2 space-y-3">
+      <p class="text-4xl md:text-5xl">🎤</p>
+      <h1 class="text-2xl md:text-4xl font-black tracking-tight">Válassz témakört</h1>
+      <p class="text-xs md:text-sm text-slate-400 max-w-sm mx-auto">hallgasd meg a kulcsszavas sorokat, mondd vissza fejből, és ellenőrizd!</p>
+      <div id="topicList" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- 2) DALVÁLASZTÓ -->
+    <div id="songScreen" class="hidden flex-1 flex-col items-center justify-center text-center py-6 px-2 space-y-3">
+      <button id="backToTopicsBtn" class="self-start text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-2.5 rounded-xl font-bold">❮ Témakörök</button>
+      <p class="text-3xl md:text-4xl pt-2">🎵</p>
+      <h2 id="songScreenTitle" class="text-xl md:text-3xl font-black tracking-tight"></h2>
+      <p class="text-xs md:text-sm text-slate-400">Válassz dalt ebből a témakörből:</p>
+      <div id="songListInTopic" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- 3) LEJÁTSZÓ FELÜLET -->
+    <div id="playerScreen" class="hidden flex-1 flex-col gap-2.5">
+
+      <div id="loadError" class="hidden bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-xs md:text-sm font-bold rounded-2xl p-4"></div>
+
+      <div id="playerControlsSticky" class="sticky top-11 z-20 bg-slate-50 dark:bg-slate-900 pb-1.5">
+        <div class="bg-white dark:bg-slate-800 p-2.5 border rounded-2xl shadow-sm space-y-2">
+          <div class="flex items-center gap-2">
+            <button id="seekBackBtn" class="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">⏪ 5mp</button>
+            <button id="playPauseBtn" class="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-xs md:text-sm active:scale-95 transition-transform">▶️ Lejátszás</button>
+            <button id="seekForwardBtn" class="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">5mp ⏩</button>
+            <select id="playbackSpeedSelect" class="ml-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-1 text-[11px] font-bold focus:outline-none focus:ring-1 focus:ring-violet-500">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="0.9">0.9x</option>
+              <option value="1.0" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="currentTime" class="text-[11px] font-mono text-slate-400 min-w-[28px]">0:00</span>
+            <input type="range" id="progressBar" value="0" class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none accent-violet-600">
+            <span id="duration" class="text-[11px] font-mono text-slate-400 min-w-[28px]">0:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 rounded-2xl md:rounded-3xl border p-3 md:p-6 space-y-4 shadow-sm pb-28" id="lyricsBox"></div>
+
+    </div>
+
+    <div id="emptyState" class="hidden bg-white dark:bg-slate-800 rounded-3xl border p-6 text-center space-y-2">
+      <p class="text-3xl">🎼</p>
+      <p class="font-bold text-sm md:text-base">Még nincs feltöltve témakör/dal ebbe a sablonba.</p>
+      <p class="text-xs text-slate-400">Töltsd ki az adat.js fájlban a TOPICS tömböt, majd töltsd fel az mp3-akat.</p>
+    </div>
+
+  </main>
+
+  <!-- ISMÉTLŐ PANEL: Rejtett mondattal és AI Beszédértékeléssel -->
+  <div id="practicePanel" class="hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 shadow-[0_-8px_24px_rgba(0,0,0,0.12)] p-4 z-40">
+    <div class="max-w-2xl mx-auto space-y-3">
+      <div class="text-center">
+        <p class="text-[10px] font-bold text-violet-500 uppercase tracking-widest mb-1">Mondd vissza fejből ezt a sort!</p>
+        
+        <div id="practiceTextContainer" class="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 border border-dashed border-slate-300 dark:border-slate-700 space-y-2">
+          <p id="practiceHiddenNotice" class="text-xs font-bold text-slate-500 italic">🔒 Rejtett sor — hallgasd meg újra, mondd ki hangosan a mikrofonba, és ellenőrizzük az AI-val!</p>
+          
+          <div id="practiceContent" class="hidden space-y-1 text-left">
+            <p class="text-[11px] font-bold text-slate-400">Eredeti mondat:</p>
+            <p id="practiceEnglish" class="font-bold text-base md:text-lg leading-snug"></p>
+            <p id="practiceHungarian" class="text-xs text-slate-400 mt-0.5"></p>
+          </div>
+
+          <div id="sttResultContainer" class="hidden bg-white dark:bg-slate-800 p-2.5 rounded-lg border text-left space-y-1">
+            <p id="sttLoadingText" class="text-xs text-violet-500 font-bold animate-pulse">🤖 Az AI elemzi a kiejtésed...</p>
+            <div id="sttActualResult" class="hidden space-y-1">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-slate-450">Mesterséges intelligencia értékelése:</p>
+              <p id="sttMatchFeedback" class="text-xs font-extrabold"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-2 flex-wrap">
+        <button id="practiceReplayBtn" class="px-3 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">▶️ Hallgasd újra</button>
+        <button id="practiceSpeakBtn" class="px-3 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">🔊 Felolvasás</button>
+        <button id="practiceRecordBtn" class="px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs active:scale-95 transition-transform">🎙️ Beszélj most!</button>
+        <button id="practicePlaybackBtn" class="hidden px-3 py-2.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded-xl font-bold text-xs active:scale-95 transition-transform">▶️ Saját hang</button>
+      </div>
+      <button id="practiceContinueBtn" class="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-black text-sm active:scale-95 transition-transform">▶️ Folytatás</button>
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById("zene");
+    const synth = window.speechSynthesis;
+    const apiKey = "";
+
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const seekBackBtn = document.getElementById("seekBackBtn");
+    const seekForwardBtn = document.getElementById("seekForwardBtn");
+    const progressBar = document.getElementById("progressBar");
+    const currentTimeText = document.getElementById("currentTime");
+    const durationText = document.getElementById("duration");
+    const playbackSpeedSelect = document.getElementById("playbackSpeedSelect");
+    const emptyState = document.getElementById("emptyState");
+    const loadError = document.getElementById("loadError");
+    const backLink = document.getElementById("backLink");
+    const homeBtn = document.getElementById("homeBtn");
+    const songSelect = document.getElementById("songSelect");
+
+    const topicScreen = document.getElementById("topicScreen");
+    const topicList = document.getElementById("topicList");
+    const songScreen = document.getElementById("songScreen");
+    const songScreenTitle = document.getElementById("songScreenTitle");
+    const songListInTopic = document.getElementById("songListInTopic");
+    const backToTopicsBtn = document.getElementById("backToTopicsBtn");
+    const playerScreen = document.getElementById("playerScreen");
+    const lyricsBox = document.getElementById("lyricsBox");
+    const playerControlsSticky = document.getElementById("playerControlsSticky");
+
+    const practicePanel = document.getElementById("practicePanel");
+    const practiceHiddenNotice = document.getElementById("practiceHiddenNotice");
+    const practiceContent = document.getElementById("practiceContent");
+    const practiceEnglish = document.getElementById("practiceEnglish");
+    const practiceHungarian = document.getElementById("practiceHungarian");
+    const sttResultContainer = document.getElementById("sttResultContainer");
+    const sttLoadingText = document.getElementById("sttLoadingText");
+    const sttActualResult = document.getElementById("sttActualResult");
+    const sttMatchFeedback = document.getElementById("sttMatchFeedback");
+
+    const practiceReplayBtn = document.getElementById("practiceReplayBtn");
+    const practiceSpeakBtn = document.getElementById("practiceSpeakBtn");
+    const practiceRecordBtn = document.getElementById("practiceRecordBtn");
+    const practicePlaybackBtn = document.getElementById("practicePlaybackBtn");
+    const practiceContinueBtn = document.getElementById("practiceContinueBtn");
+
+    let isMusicPlaying = false;
+    let currentSong = null;
+    let currentTopicIndex = 0;
+    let currentSongIndex = 0;
+    let lastActiveLineKey = null;
+    let activeLineIdx = -1;
+
+    let flatLines = [];        
+    let handledKeys = new Set(); 
+    let pausedLineItem = null;   
+    let lineTags = {}; 
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let currentStream = null;
+    let isRecording = false;
+    let recordings = {}; 
+    let isRevealed = false; 
+
+    if (typeof BACK_LINK !== "undefined") backLink.href = BACK_LINK;
+
+    const topics = (typeof TOPICS !== "undefined") ? TOPICS : [];
+    const flatSongs = [];
+    topics.forEach((topic, tIdx) => {
+      (topic.songs || []).forEach((song, sIdx) => {
+        flatSongs.push({ topicIndex: tIdx, songIndex: sIdx, topic, song });
+      });
+    });
+
+    function showTopicScreen() {
+      topicScreen.classList.remove('hidden');
+      topicScreen.classList.add('flex');
+      songScreen.classList.add('hidden');
+      songScreen.classList.remove('flex');
+      playerScreen.classList.add('hidden');
+      playerScreen.classList.remove('flex');
+      songSelect.classList.add('hidden');
+      homeBtn.classList.add('hidden');
+      audio.pause();
+      hidePracticePanel();
+    }
+
+    function showSongScreen(topicIndex) {
+      currentTopicIndex = topicIndex;
+      const topic = topics[topicIndex];
+      songScreenTitle.textContent = topic.title;
+
+      songListInTopic.innerHTML = '';
+      (topic.songs || []).forEach((song, sIdx) => {
+        const card = document.createElement('button');
+        card.className = "w-full flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-violet-400 rounded-2xl px-4 py-3.5 shadow-sm transition-all text-left active:scale-[0.98]";
+        card.innerHTML = `<span class="font-bold text-base md:text-lg">${song.title}</span><span class="text-violet-500 text-lg">▶️</span>`;
+        card.addEventListener('click', () => selectSong(topicIndex, sIdx));
+        songListInTopic.appendChild(card);
+      });
+
+      topicScreen.classList.add('hidden');
+      topicScreen.classList.remove('flex');
+      songScreen.classList.remove('hidden');
+      songScreen.classList.add('flex');
+      playerScreen.classList.add('hidden');
+      playerScreen.classList.remove('flex');
+      songSelect.classList.add('hidden');
+      homeBtn.classList.add('hidden');
+    }
+
+    function buildTopicList() {
+      topicList.innerHTML = '';
+      topics.forEach((topic, tIdx) => {
+        const count = (topic.songs || []).length;
+        const card = document.createElement('button');
+        card.className = "w-full flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-violet-400 rounded-2xl px-4 py-3.5 shadow-sm transition-all text-left active:scale-[0.98]";
+        card.innerHTML = `<span><span class="block font-bold text-base md:text-lg">${topic.title}</span><span class="block text-xs text-slate-400">${count} dal</span></span><span class="text-violet-500 text-lg">❯</span>`;
+        card.addEventListener('click', () => showSongScreen(tIdx));
+        topicList.appendChild(card);
+      });
+    }
+
+    function buildSongSelect() {
+      songSelect.innerHTML = '';
+      topics.forEach((topic, tIdx) => {
+        const group = document.createElement('optgroup');
+        group.label = topic.title;
+        (topic.songs || []).forEach((song, sIdx) => {
+          const opt = document.createElement('option');
+          opt.value = `${tIdx}-${sIdx}`;
+          opt.textContent = song.title;
+          group.appendChild(opt);
+        });
+        songSelect.appendChild(group);
+      });
+    }
+
+    songSelect.addEventListener('change', () => {
+      const [tIdx, sIdx] = songSelect.value.split('-').map(Number);
+      selectSong(tIdx, sIdx);
+    });
+
+    homeBtn.addEventListener('click', showTopicScreen);
+    backToTopicsBtn.addEventListener('click', showTopicScreen);
+
+    function selectSong(topicIndex, songIndex) {
+      currentTopicIndex = topicIndex;
+      currentSongIndex = songIndex;
+
+      topicScreen.classList.add('hidden');
+      topicScreen.classList.remove('flex');
+      songScreen.classList.add('hidden');
+      songScreen.classList.remove('flex');
+      playerScreen.classList.remove('hidden');
+      playerScreen.classList.add('flex');
+      songSelect.classList.remove('hidden');
+      homeBtn.classList.remove('hidden');
+
+      songSelect.value = `${topicIndex}-${songIndex}`;
+      loadSong(topics[topicIndex].songs[songIndex]);
+    }
+
+    function loadSong(song) {
+      currentSong = song;
+      lastActiveLineKey = null;
+      activeLineIdx = -1;
+      handledKeys = new Set();
+      recordings = {};
+      hidePracticePanel();
+
+      audio.pause();
+      isMusicPlaying = false;
+      playPauseBtn.textContent = "▶️ Lejátszás";
+      loadError.classList.add('hidden');
+
+      audio.src = currentSong.localAudio || "";
+      audio.load();
+      audio.playbackRate = parseFloat(playbackSpeedSelect.value) || 1.0;
+
+      audio.onerror = function() {
+        if (currentSong.fallbackAudio && audio.src.indexOf(currentSong.fallbackAudio) === -1) {
+          audio.src = currentSong.fallbackAudio;
+          audio.load();
+        } else {
+          loadError.textContent = `Nem sikerült betölteni a(z) "${currentSong.title}" hangfájlját.`;
+          loadError.classList.remove('hidden');
+        }
+      };
+
+      buildFlatLines();
+      buildUI();
+    }
+
+    function buildFlatLines() {
+      flatLines = [];
+      const hasSong = currentSong && currentSong.songStructureData && currentSong.songStructureData.length > 0;
+      emptyState.classList.toggle('hidden', hasSong);
+      if (!hasSong) return;
+      currentSong.songStructureData.forEach((verse, vIdx) => {
+        verse.lines.forEach((line, lIdx) => {
+          const hasKeyword = /\*\*(.*?)\*\*/.test(line.text);
+          flatLines.push({ vIdx, lIdx, verse, line, hasKeyword, key: `${vIdx}-${lIdx}` });
+        });
+      });
+    }
+
+    function cleanTextForSpeech(text) { return text.replace(/\*\*/g, ''); }
+
+    function speakSentence(text) {
+      if (!synth) return;
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanTextForSpeech(text));
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      synth.speak(utterance);
+    }
+
+    function playLineOnce(start, end) {
+      audio.pause();
+      audio.currentTime = start;
+      audio.play().catch(e => console.log("Lejátszási hiba:", e));
+      const handler = function() {
+        if (audio.currentTime >= end) {
+          audio.pause();
+          audio.removeEventListener('timeupdate', handler);
+        }
+      };
+      audio.addEventListener('timeupdate', handler);
+    }
+
+    function tagKey(key) {
+      return `${currentSong ? currentSong.id : ''}__${key}`;
+    }
+
+    function setLineTag(key, color) {
+      const tk = tagKey(key);
+      if (lineTags[tk] === color) delete lineTags[tk];
+      else lineTags[tk] = color;
+      applyLineTagVisual(key);
+    }
+
+    function applyLineTagVisual(key) {
+      const tk = tagKey(key);
+      const color = lineTags[tk];
+      const tagColors = { yellow: '#d4a017', orange: '#e8703a', red: '#c94a4a' };
+      const bar = document.getElementById(`tagbar-${key}`);
+      if (bar) bar.style.backgroundColor = color ? tagColors[color] : 'transparent';
+      ['yellow', 'orange', 'red'].forEach(c => {
+        const dot = document.getElementById(`dot-${key}-${c}`);
+        if (!dot) return;
+        if (color === c) {
+          dot.style.backgroundColor = tagColors[c];
+          dot.classList.add('scale-110');
+        } else {
+          dot.style.backgroundColor = 'transparent';
+          dot.classList.remove('scale-110');
+        }
+      });
+    }
+
+    function buildUI() {
+      lyricsBox.innerHTML = '';
+      const structure = currentSong && currentSong.songStructureData ? currentSong.songStructureData : [];
+
+      structure.forEach((verse, vIdx) => {
+        const vDiv = document.createElement('div'); vDiv.className = "space-y-1.5 p-1";
+        const vTitle = document.createElement('h4'); vTitle.className = "text-xs font-bold text-slate-400 tracking-wider mb-1.5";
+        vTitle.textContent = verse.title; vDiv.appendChild(vTitle);
+
+        verse.lines.forEach((line, lIdx) => {
+          const hasKeyword = /\*\*(.*?)\*\*/.test(line.text);
+          const key = `${vIdx}-${lIdx}`;
+          const isDone = handledKeys.has(key);
+
+          const lDiv = document.createElement('div');
+          lDiv.id = `line-${key}`;
+          lDiv.className = "p-2 rounded-xl transition-all border border-transparent flex items-start gap-2 scroll-mt-[150px]" + (hasKeyword ? " bg-violet-50/50 dark:bg-violet-950/20" : "");
+
+          const tagBar = document.createElement('div');
+          tagBar.id = `tagbar-${key}`;
+          tagBar.className = "w-[3px] self-stretch rounded-full flex-shrink-0 transition-colors";
+          tagBar.style.backgroundColor = 'transparent';
+
+          const textWrap = document.createElement('div'); textWrap.className = "flex-1 min-w-0";
+          
+          const eng = document.createElement('p'); eng.className = "text-sm md:text-base font-semibold break-words leading-snug";
+          const hun = document.createElement('p'); hun.className = "text-xs text-slate-400 mt-0.5";
+
+          if (hasKeyword && !isDone) {
+            eng.innerHTML = `<span class="text-violet-500 italic">🔒 [Rejtett kulcsszavas sor — hallgasd és ismételd]</span>`;
+            hun.textContent = "••••••••••••••••••••••••••••••••";
+          } else {
+            eng.innerHTML = line.text.replace(/\*\*(.*?)\*\*/g, '<span class="text-violet-600 dark:text-violet-400 font-black underline decoration-violet-300 dark:decoration-violet-700 decoration-2 underline-offset-4">$1</span>');
+            hun.textContent = line.hungarian;
+          }
+
+          textWrap.appendChild(eng); textWrap.appendChild(hun);
+
+          if (hasKeyword) {
+            const tagRow = document.createElement('div');
+            tagRow.className = "flex items-center gap-2 mt-1.5";
+            const tagColors = { yellow: '#d4a017', orange: '#e8703a', red: '#c94a4a' };
+            const tagLabels = { yellow: 'Jól megy', orange: 'Kicsit nehéz', red: 'Teljes homály' };
+            Object.keys(tagColors).forEach(color => {
+              const dot = document.createElement('button');
+              dot.id = `dot-${key}-${color}`;
+              dot.title = tagLabels[color];
+              dot.className = "w-2.5 h-2.5 rounded-full flex-shrink-0 active:scale-90 transition-all border-[1.5px]";
+              dot.style.borderColor = tagColors[color];
+              dot.style.backgroundColor = 'transparent';
+              dot.addEventListener('click', (e) => { e.stopPropagation(); setLineTag(key, color); });
+              tagRow.appendChild(dot);
+            });
+            textWrap.appendChild(tagRow);
+          }
+
+          const btnCol = document.createElement('div'); btnCol.className = "flex flex-col gap-1 flex-shrink-0";
+
+          const playBtn = document.createElement('button');
+          playBtn.className = "p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-200/70 dark:hover:bg-slate-600/50 active:scale-90 transition-all";
+          playBtn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+          playBtn.title = "Sor lejátszása";
+          playBtn.addEventListener('click', () => playLineOnce(line.start, line.end));
+
+          const speakBtn = document.createElement('button');
+          speakBtn.className = "p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-200/70 dark:hover:bg-slate-600/50 active:scale-90 transition-all";
+          speakBtn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>`;
+          speakBtn.title = "Mondat felolvasása";
+          speakBtn.addEventListener('click', () => speakSentence(line.text));
+
+          const micBtn = document.createElement('button');
+          micBtn.className = "p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200/70 dark:hover:bg-slate-600/50 active:scale-90 transition-all";
+          micBtn.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/></svg>`;
+          micBtn.title = "Ezt a sort szeretném gyakorolni";
+          micBtn.addEventListener('click', () => {
+            audio.pause();
+            isMusicPlaying = false;
+            playPauseBtn.textContent = "▶️ Lejátszás";
+            showPracticePanel(flatLines.find(f => f.key === key));
+          });
+
+          btnCol.appendChild(playBtn); btnCol.appendChild(speakBtn); btnCol.appendChild(micBtn);
+          lDiv.appendChild(tagBar); lDiv.appendChild(textWrap); lDiv.appendChild(btnCol);
+          vDiv.appendChild(lDiv);
+          if (hasKeyword) applyLineTagVisual(key);
+        });
+        lyricsBox.appendChild(vDiv);
+      });
+    }
+
+    function showPracticePanel(item) {
+      pausedLineItem = item;
+      isRevealed = false;
+      
+      practiceHiddenNotice.classList.remove('hidden');
+      practiceContent.classList.add('hidden');
+      sttResultContainer.classList.add('hidden');
+      
+      practiceEnglish.innerHTML = item.line.text.replace(/\*\*(.*?)\*\*/g, '<span class="text-violet-600 dark:text-violet-400">$1</span>');
+      practiceHungarian.textContent = item.line.hungarian;
+      
+      practicePlaybackBtn.classList.add('hidden');
+      practiceRecordBtn.textContent = "🎙️ Beszélj most!";
+      practiceRecordBtn.classList.remove('bg-rose-700', 'animate-pulse');
+      practicePanel.classList.remove('hidden');
+      const el = document.getElementById(`line-${item.key}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function hidePracticePanel() {
+      practicePanel.classList.add('hidden');
+      pausedLineItem = null;
+      if (isRecording) stopRecordingAndSend();
+    }
+
+    practiceReplayBtn.addEventListener('click', () => {
+      if (pausedLineItem) playLineOnce(pausedLineItem.line.start, pausedLineItem.line.end);
+    });
+    
+    practiceSpeakBtn.addEventListener('click', () => {
+      if (pausedLineItem) speakSentence(pausedLineItem.line.text);
+    });
+    
+    practiceContinueBtn.addEventListener('click', () => {
+      if (pausedLineItem) {
+        handledKeys.add(pausedLineItem.key);
+        buildUI(); 
+      }
+      practicePanel.classList.add('hidden');
+      pausedLineItem = null;
+      audio.play().catch(e => console.log("Lejátszási hiba:", e));
+      isMusicPlaying = true;
+      playPauseBtn.textContent = "⏸️ Szünet";
+    });
+
+    practiceRecordBtn.addEventListener('click', () => {
+      if (isRecording) {
+        stopRecordingAndSend();
+      } else {
+        startRecording();
+      }
+    });
+
+    async function startRecording() {
+      if (!pausedLineItem) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        currentStream = stream;
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+        
+        mediaRecorder.start();
+        isRecording = true;
+
+        practiceRecordBtn.textContent = "⏹️ Kész (Kattints a leállításhoz)";
+        practiceRecordBtn.classList.add('bg-rose-700', 'animate-pulse');
+      } catch (err) {
+        alert("Mikrofon hiba: engedélyezned kell a mikrofon használatát a böngészőben.");
+      }
+    }
+
+    function stopRecordingAndSend() {
+      if (!mediaRecorder) return;
+      isRecording = false;
+      practiceRecordBtn.textContent = "🎙️ Újra felveszem";
+      practiceRecordBtn.classList.remove('bg-rose-700', 'animate-pulse');
+
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        const key = pausedLineItem.key;
+        if (recordings[key]) URL.revokeObjectURL(recordings[key]);
+        recordings[key] = URL.createObjectURL(blob);
+        currentStream.getTracks().forEach(t => t.stop());
+        
+        practicePlaybackBtn.classList.remove('hidden');
+        revealSolution();
+
+        // AI Értékelés küldése a Gemini API-nak
+        await evaluateSpeechWithAI(blob, pausedLineItem.line.text);
+      };
+
+      mediaRecorder.stop();
+    }
+
+    async function evaluateSpeechWithAI(audioBlob, originalText) {
+      sttResultContainer.classList.remove('hidden');
+      sttLoadingText.classList.remove('hidden');
+      sttActualResult.classList.add('hidden');
+
+      try {
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64Audio = reader.result.split(',')[1];
+
+          const prompt = `Te egy barátságos angol nyelvtanár vagy. A tanulónak ezt az angol mondatot kellett felolvasnia: "${originalText}". Hallgasd meg a csatolt hangfelvételt, amelyen a tanuló beszél, és értékeld a kiejtését! Válaszolj magyarul, rövid, lelkesítő és segítőkész mondatban (maximum 1-2 mondat), kitérve arra, hogy mennyire volt érthető és pontos a kiejtése.`;
+
+          const payload = {
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { text: prompt },
+                  {
+                    inlineData: {
+                      mimeType: "audio/webm",
+                      data: base64Audio
+                    }
+                  }
+                ]
+              }
+            ]
+          };
+
+          let resultText = "";
+          for (let attempt = 0; i < 5; attempt++) {
+            try {
+              const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+              const result = await response.json();
+              resultText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (resultText) break;
+            } catch (err) {
+              if (attempt === 4) throw err;
+              await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+            }
+          }
+
+          sttLoadingText.classList.add('hidden');
+          sttActualResult.classList.remove('hidden');
+          sttMatchFeedback.textContent = resultText || "Szép próbálkozás! Hallgasd meg az eredeti felvételt és próbáld újra.";
+          sttMatchFeedback.className = "text-xs font-extrabold text-violet-600 dark:text-violet-400";
+        };
+      } catch (e) {
+        sttLoadingText.classList.add('hidden');
+        sttActualResult.classList.remove('hidden');
+        sttMatchFeedback.textContent = "Nem sikerült elküldeni az elemzéshez a hangot, de a saját hangodat meghallgathatod a gombbal!";
+        sttMatchFeedback.className = "text-xs font-extrabold text-amber-500";
+      }
+    }
+
+    function revealSolution() {
+      isRevealed = true;
+      practiceHiddenNotice.classList.add('hidden');
+      practiceContent.classList.remove('hidden');
+    }
+
+    practicePlaybackBtn.addEventListener('click', () => {
+      if (!pausedLineItem) return;
+      const url = recordings[pausedLineItem.key];
+      if (!url) return;
+      const playback = new Audio(url);
+      playback.play().catch(e => console.log(e));
+    });
+
+    playPauseBtn.addEventListener('click', () => {
+      if (pausedLineItem) return; 
+      if (isMusicPlaying) {
+        audio.pause();
+        isMusicPlaying = false;
+        playPauseBtn.textContent = "▶️ Lejátszás";
+      } else {
+        audio.play().catch(e => console.log(e));
+        isMusicPlaying = true;
+        playPauseBtn.textContent = "⏸️ Szünet";
+      }
+    });
+
+    seekBackBtn.addEventListener('click', () => {
+      if (!isNaN(audio.duration)) audio.currentTime = Math.max(0, audio.currentTime - 5);
+    });
+    seekForwardBtn.addEventListener('click', () => {
+      if (!isNaN(audio.duration)) audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+    });
+
+    progressBar.addEventListener('input', (e) => {
+      if (!isNaN(audio.duration)) {
+        hidePracticePanel();
+        audio.currentTime = (e.target.value / 100) * audio.duration;
+      }
+    });
+
+    playbackSpeedSelect.addEventListener('change', () => {
+      audio.playbackRate = parseFloat(playbackSpeedSelect.value) || 1.0;
+    });
+
+    function findLineIndexAt(cur) {
+      for (let i = 0; i < flatLines.length; i++) {
+        if (cur >= flatLines[i].line.start && cur < flatLines[i].line.end) return i;
+      }
+      return -1;
+    }
+
+    function highlightActive(idx) {
+      document.querySelectorAll('.active-line-hf').forEach(n => n.classList.remove('active-line-hf', 'bg-violet-100', 'dark:bg-violet-900/40'));
+      if (idx < 0 || idx >= flatLines.length) return;
+      const item = flatLines[idx];
+      const el = document.getElementById(`line-${item.key}`);
+      if (el) {
+        el.classList.add('active-line-hf', 'bg-violet-100', 'dark:bg-violet-900/40');
+        if (item.lIdx === 0) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+
+    audio.addEventListener('timeupdate', () => {
+      const cur = audio.currentTime;
+      if (!isNaN(audio.duration)) {
+        progressBar.value = (cur / audio.duration) * 100;
+        currentTimeText.textContent = formatTime(cur);
+        durationText.textContent = formatTime(audio.duration);
+      }
+
+      if (pausedLineItem) return; 
+
+      const justEnded = flatLines.find(f => f.hasKeyword && !handledKeys.has(f.key) && cur >= f.line.end);
+      if (justEnded) {
+        audio.pause();
+        audio.currentTime = justEnded.line.end;
+        isMusicPlaying = false;
+        playPauseBtn.textContent = "▶️ Lejátszás";
+        showPracticePanel(justEnded);
+        return;
+      }
+
+      const idx = findLineIndexAt(cur);
+      if (idx !== -1 && idx !== activeLineIdx) {
+        activeLineIdx = idx;
+        highlightActive(idx);
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      isMusicPlaying = false;
+      playPauseBtn.textContent = "▶️ Lejátszás";
+    });
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    if (flatSongs.length) {
+      buildTopicList();
+      buildSongSelect();
+      const params = new URLSearchParams(window.location.search);
+      const requestedId = params.get('song');
+      if (requestedId) {
+        const found = flatSongs.find(f => f.song.id === requestedId);
+        if (found) selectSong(found.topicIndex, found.songIndex);
+      }
+    } else {
+      topicScreen.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
