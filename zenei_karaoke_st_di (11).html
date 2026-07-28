@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zene & Karaoke Stúdió</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="adat.js"></script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-300 select-none">
+
+  <header class="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 py-2 px-3 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-2 flex-wrap">
+      <div class="flex items-center gap-2">
+        <a id="backLink" href="index.html" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2.5 py-1.5 rounded-xl font-bold active:scale-95 transition-transform">❮ Vissza</a>
+        <button id="homeBtn" class="hidden text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2.5 py-1.5 rounded-xl font-bold active:scale-95 transition-transform">🏠 Témakörök</button>
+        <span class="text-sm font-bold tracking-wide truncate">Zenei Karaoke Stúdió</span>
+      </div>
+      <select id="songSelect" class="hidden text-xs font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-1.5 outline-none max-w-[150px] truncate"></select>
+    </div>
+  </header>
+
+  <audio id="zene" preload="auto"></audio>
+
+  <main id="mainContent" class="flex-1 max-w-2xl w-full mx-auto p-2 md:p-4 flex flex-col gap-2.5 transition-[padding] duration-300">
+
+    <!-- TÉMAKÖR-VÁLASZTÓ KÉPERNYŐ -->
+    <div id="topicScreen" class="flex-1 flex flex-col items-center justify-center text-center py-8 px-2 space-y-3">
+      <p class="text-4xl md:text-5xl">🎧</p>
+      <h1 class="text-2xl md:text-4xl font-black tracking-tight text-slate-800 dark:text-slate-100">Válassz témakört</h1>
+      <p class="text-xs md:text-sm text-slate-400 max-w-sm mx-auto">és kezdj el tanulni angol dalokkal — énekelj, ismételj, és jegyezd meg a szavakat játszva!</p>
+      <div id="topicList" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- DALVÁLASZTÓ KÉPERNYŐ -->
+    <div id="songScreen" class="hidden flex-1 flex-col items-center justify-center text-center py-6 px-2 space-y-3">
+      <button id="backToTopicsBtn" class="self-start text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-2.5 rounded-xl font-bold active:scale-95 transition-transform">❮ Témakörök</button>
+      <p class="text-3xl md:text-4xl pt-2">🎵</p>
+      <h2 id="songScreenTitle" class="text-xl md:text-3xl font-black tracking-tight text-slate-800 dark:text-slate-100"></h2>
+      <p class="text-xs md:text-sm text-slate-400">Válassz dalt ebből a témakörből:</p>
+      <div id="songListInTopic" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- LEJÁTSZÓ FELÜLET -->
+    <div id="playerScreen" class="hidden flex-1 flex-col gap-2.5">
+      <div id="loadError" class="hidden bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-xs md:text-sm font-bold rounded-2xl p-4"></div>
+      <div id="playerControlsSticky" class="sticky top-11 z-20 bg-slate-50 dark:bg-slate-900 pb-1.5">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border shadow-sm divide-y divide-slate-100 dark:divide-slate-700">
+          <div class="p-2 space-y-1">
+            <div class="flex justify-between items-center gap-2">
+              <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">Versszakok</h3>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <span id="loopBadge" class="hidden text-[10px] bg-violet-600 text-white px-2 py-0.5 rounded-lg whitespace-nowrap">Ismétlés aktív</span>
+                <button onclick="clearLoop()" class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-lg active:scale-95 transition-transform whitespace-nowrap">Loop törlése</button>
+              </div>
+            </div>
+            <div class="flex gap-1 overflow-x-auto pb-0.5 -mx-0.5 px-0.5 min-h-[28px] items-center" id="verseBtnsContainer"></div>
+          </div>
+          <div class="p-2 space-y-1.5">
+            <div class="flex items-center justify-center gap-2">
+              <button id="seekBackBtn" class="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">⏪ 5mp</button>
+              <button id="playPauseBtn" class="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-xs md:text-sm active:scale-95 transition-transform">▶️ Lejátszás</button>
+              <button id="seekForwardBtn" class="py-1.5 px-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-xl font-bold text-xs active:scale-95 transition-transform">5mp ⏩</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="currentTime" class="text-[11px] font-mono text-slate-400 min-w-[28px]">0:00</span>
+              <input type="range" id="progressBar" value="0" class="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none accent-violet-600">
+              <span id="duration" class="text-[11px] font-mono text-slate-400 min-w-[28px]">0:00</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 pt-0.5 flex-wrap">
+              <select id="playbackSpeedSelect" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px] font-bold">
+                <option value="1.0" selected>1.0x</option>
+                <option value="0.75">0.75x</option>
+              </select>
+              <select id="ttsSpeedSelect" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px] font-bold">
+                <option value="0.8" selected>0.8x</option>
+                <option value="1.0">1.0x</option>
+              </select>
+              <select id="repeatPauseSelect" class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-0.5 text-[11px] font-bold">
+                <option value="1" selected>Normál szünet</option>
+                <option value="2">Hosszú szünet</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-slate-800 rounded-2xl md:rounded-3xl border p-3 md:p-6 space-y-4 shadow-sm" id="lyricsBox"></div>
+    </div>
+  </main>
+
+  <!-- MÉLYTANULÁS PANEL -->
+  <div id="deepLearnPanel" class="hidden fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-violet-700 to-violet-600 text-white shadow-[0_-8px_24px_rgba(0,0,0,0.25)]">
+    <div class="max-w-2xl mx-auto p-3 md:p-4 space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <span id="deepLearnPhaseLabel" class="text-[11px] md:text-xs font-bold uppercase tracking-wider text-violet-100"></span>
+        <button id="deepLearnStopBtn" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-bold active:scale-95 transition-transform flex-shrink-0">⏹ Kilépés</button>
+      </div>
+      <p id="deepLearnLineText" class="text-base md:text-lg font-black leading-snug"></p>
+      <div class="flex items-center gap-3">
+        <div class="flex-1 h-2.5 bg-white/20 rounded-full overflow-hidden">
+          <div id="deepLearnProgressBar" class="h-full bg-white rounded-full transition-all duration-300" style="width:0%"></div>
+        </div>
+        <span id="deepLearnCountText" class="text-2xl font-black tabular-nums flex-shrink-0 min-w-[3.5rem] text-right"></span>
+      </div>
+      <button id="deepLearnStartBtn" class="w-full py-2 bg-white text-violet-700 font-bold rounded-xl active:scale-95 transition">▶️ Kezdés</button>
+    </div>
+  </div>
+
+  <!-- ISMÉTLŐ GYAKORLÁS PANEL -->
+  <div id="repeatPracticePanel" class="hidden fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-violet-700 to-violet-600 text-white shadow-[0_-8px_24px_rgba(0,0,0,0.25)]">
+    <div class="max-w-2xl mx-auto p-3 md:p-4 space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-[11px] md:text-xs font-bold uppercase tracking-wider text-violet-100">🗣️ Hallgasd és ismételd: cél, hogy fejből, olvasás nélkül el tudd ismételni.</span>
+        <button id="repeatPracticeStopBtn" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-bold active:scale-95 transition-transform flex-shrink-0">⏹ Kilépés</button>
+      </div>
+      <p id="repeatPracticeLineText" class="text-base md:text-lg font-black leading-snug"></p>
+      <div class="flex items-center gap-3">
+        <div class="flex-1 h-2.5 bg-white/20 rounded-full overflow-hidden">
+          <div id="repeatPracticeProgressBar" class="h-full bg-white rounded-full transition-all duration-300" style="width:0%"></div>
+        </div>
+        <span id="repeatPracticeCountText" class="text-2xl font-black tabular-nums flex-shrink-0 min-w-[3.5rem] text-right">1/20</span>
+      </div>
+      <button id="repeatPracticeStartBtn" class="w-full py-2 bg-white text-violet-700 font-bold rounded-xl active:scale-95 transition">▶️ Kezdés</button>
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById("zene");
+    const synth = window.speechSynthesis;
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const repeatPracticePanel = document.getElementById("repeatPracticePanel");
+    const repeatPracticeStartBtn = document.getElementById("repeatPracticeStartBtn");
+    const repeatPracticeStopBtn = document.getElementById("repeatPracticeStopBtn");
+    const repeatPracticeLineText = document.getElementById("repeatPracticeLineText");
+    const repeatPracticeProgressBar = document.getElementById("repeatPracticeProgressBar");
+    const repeatPracticeCountText = document.getElementById("repeatPracticeCountText");
+
+    let repeatPracticeActive = false;
+    let repeatPracticeKey = null;
+    let repeatPracticeStart = null;
+    let repeatPracticeEnd = null;
+    let repeatPracticeCount = 1;
+    const REPEAT_PRACTICE_TARGET = 20;
+
+    // ... (többi függvény változatlanul marad)
+
+    function toggleRepeatPractice(key, start, end, text) {
+      if (repeatPracticeActive && repeatPracticeKey === key) {
+        stopRepeatPractice();
+        return;
+      }
+      repeatPracticeActive = true;
+      repeatPracticeKey = key;
+      repeatPracticeStart = start;
+      repeatPracticeEnd = end;
+      repeatPracticeCount = 1;
+      repeatPracticeLineText.textContent = text;
+      repeatPracticeProgressBar.style.width = "0%";
+      repeatPracticeCountText.textContent = `1/${REPEAT_PRACTICE_TARGET}`;
+      repeatPracticePanel.classList.remove('hidden');
+    }
+
+    repeatPracticeStartBtn.addEventListener('click', () => {
+      repeatPracticeStartBtn.classList.add('hidden');
+      audio.currentTime = repeatPracticeStart;
+      audio.play();
+    });
+
+    // A timeupdate figyelőben a repeatPracticeActive ág...
+    function handleRepeatPracticeEnd() {
+        if (repeatPracticeCount < REPEAT_PRACTICE_TARGET) {
+            audio.pause();
+            setTimeout(() => {
+                repeatPracticeCount++;
+                repeatPracticeCountText.textContent = `${repeatPracticeCount}/${REPEAT_PRACTICE_TARGET}`;
+                repeatPracticeProgressBar.style.width = `${(repeatPracticeCount / REPEAT_PRACTICE_TARGET) * 100}%`;
+                audio.currentTime = repeatPracticeStart;
+                audio.play();
+            }, 2000);
+        } else {
+            stopRepeatPractice();
+        }
+    }
+
+    function stopRepeatPractice() {
+      repeatPracticeActive = false;
+      repeatPracticePanel.classList.add('hidden');
+      audio.pause();
+    }
+  </script>
+</body>
+</html>
