@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Szófordítás Teszt</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9' }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="adat.js"></script>
+  <style>
+    .flip-perspective { perspective: 1600px; }
+    .flip-card {
+      position: relative;
+      transition: transform 0.7s cubic-bezier(0.4, 0.15, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card.is-flipped { transform: rotateY(180deg); }
+    .flip-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .flip-face-back { transform: rotateY(180deg); }
+    #micBtn.is-listening { animation: micPulse 1.4s ease-in-out infinite; }
+    @keyframes micPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.35); }
+      50% { box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-300">
+
+  <header class="border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 py-4 px-4 md:px-6 sticky top-0 z-10 shadow-sm">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 md:gap-3 min-w-0">
+        <a id="backLink" href="index.html" class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-2 rounded-xl font-bold flex-shrink-0">❮ Vissza</a>
+        <button id="homeBtn" class="hidden text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-2 rounded-xl font-bold flex-shrink-0">🏠</button>
+        <span class="text-sm md:text-lg font-bold tracking-wide text-slate-800 dark:text-white truncate">Szófordítás Teszt</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="autoSpeechToggle" onclick="toggleAutoSpeech()" title="Automatikus felolvasás be/ki" class="text-xs bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 px-3 py-2 rounded-xl font-bold active:scale-95 transition-transform">🔊 Hang: BE</button>
+        <select id="songSelect" class="hidden text-xs font-bold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-2 outline-none max-w-[130px] truncate"></select>
+      </div>
+    </div>
+  </header>
+
+  <audio id="zene" preload="auto"></audio>
+
+  <main class="flex-1 max-w-2xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center items-center gap-6 relative">
+
+    <!-- 1) TÉMAKÖR-VÁLASZTÓ -->
+    <div id="topicScreen" class="flex-1 flex flex-col items-center justify-center text-center py-8 px-2 space-y-3 w-full">
+      <p class="text-4xl md:text-5xl">🗣️</p>
+      <h1 class="text-2xl md:text-4xl font-black tracking-tight">Válassz témakört</h1>
+      <p class="text-xs md:text-sm text-slate-400 max-w-sm mx-auto">nézd az angol kulcsszót, mondd ki magyarul — aztán fordítsd meg a kártyát!</p>
+      <div id="topicList" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- 2) DALVÁLASZTÓ -->
+    <div id="songScreen" class="hidden flex-1 flex-col items-center justify-center text-center py-6 px-2 space-y-3 w-full">
+      <button id="backToTopicsBtn" class="self-start text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-2.5 rounded-xl font-bold">❮ Témakörök</button>
+      <p class="text-3xl md:text-4xl pt-2">🎵</p>
+      <h2 id="songScreenTitle" class="text-xl md:text-3xl font-black tracking-tight"></h2>
+      <p class="text-xs md:text-sm text-slate-400">Válassz dalt ebből a témakörből:</p>
+      <div id="songListInTopic" class="w-full max-w-sm mx-auto space-y-3 pt-4"></div>
+    </div>
+
+    <!-- 3) KÁRTYÁS TESZT -->
+    <div id="quizScreen" class="hidden flex-1 flex-col justify-center items-center gap-6 w-full">
+
+      <div id="noCardsBox" class="hidden bg-white dark:bg-slate-800 rounded-3xl border p-6 text-center space-y-2 w-full">
+        <p class="text-3xl">🃏</p>
+        <p class="font-bold text-sm md:text-base">Ehhez a dalhoz még nincsenek kártyák feltöltve.</p>
+      </div>
+
+      <div id="quizArea" class="hidden flex-col justify-center items-center gap-6 w-full">
+        <div class="w-full flex justify-between items-center text-sm font-bold text-slate-400">
+          <span id="questionProgress">1 / 12 Szó</span>
+          <span id="flaggedCountDisplay" class="text-amber-600 dark:text-amber-400 font-medium hidden">Ismétlendő: 0</span>
+        </div>
+
+        <div class="flip-perspective w-full">
+          <div id="quizBox" class="flip-card w-full min-h-[320px] cursor-pointer" onclick="revealAnswer()">
+
+            <!-- ELŐLAP: angol kulcsszó + mikrofon -->
+            <div id="cardFront" class="flip-face flex flex-col items-center justify-center text-center gap-5 p-8 md:p-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700/60 overflow-hidden">
+              <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Mit jelent magyarul?</p>
+                <div class="flex items-center justify-center gap-2">
+                  <p id="quizKeyword" class="text-3xl md:text-4xl font-black tracking-tight text-brand-600 dark:text-brand-400 leading-relaxed"></p>
+                  <button onclick="event.stopPropagation(); speakKeyword();" title="Szó felolvasása" class="p-2 rounded-xl bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 hover:bg-brand-100 transition active:scale-95 text-base">🔊</button>
+                </div>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <button id="micBtn" onclick="event.stopPropagation(); toggleSttListening();" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95">
+                  🎙️ Mondd ki magyarul!
+                </button>
+                <p id="sttFeedback" class="text-xs font-bold min-h-[1rem]"></p>
+              </div>
+              <p class="text-[11px] text-slate-300 dark:text-slate-600">(vagy koppints a kártyára, ha inkább megnéznéd)</p>
+            </div>
+
+            <!-- HÁTLAP: magyar fordítás + példamondat -->
+            <div id="cardBack" class="flip-face flip-face-back flex flex-col justify-center text-center gap-4 p-8 md:p-12 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700/60 overflow-hidden">
+              <p id="quizHungarianKeyword" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400"></p>
+              <div class="space-y-1.5 pt-1">
+                <p id="quizEnglishSentence" class="text-sm md:text-base font-semibold text-slate-700 dark:text-slate-200 leading-snug"></p>
+                <p id="quizHungarianSentence" class="text-xs md:text-sm text-slate-400 leading-snug"></p>
+              </div>
+              <button id="replayBtn" onclick="event.stopPropagation(); playClip();" class="mx-auto mt-2 text-xs font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-3 py-2 rounded-xl active:scale-95 transition-transform">🔁 Dalszerészlet hallgatása</button>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="actionRow" style="display: none;" class="flex items-center gap-3 w-full max-w-2xl">
+          <button onclick="handleFeedback(true)" class="flex-1 py-4 rounded-xl border border-amber-400/60 bg-amber-50/40 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95">
+            ⚠️ Döcögős / Ismételjük
+          </button>
+          <button onclick="handleFeedback(false)" class="flex-[2] py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-95">
+            ✅ Simán ment ➔
+          </button>
+        </div>
+
+        <div id="resultBox" class="w-full bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700/60 p-8 text-center hidden flex-col items-center gap-5">
+          <span class="text-5xl">🏆</span>
+          <h2 class="text-2xl font-black">Szófordítás teszt kész!</h2>
+          <p id="finalScoreText" class="text-base text-slate-600 dark:text-slate-300"></p>
+
+          <div class="flex flex-col sm:flex-row gap-3 w-full pt-4 border-t border-slate-100 dark:border-slate-700">
+            <button onclick="restartQuiz(false)" class="flex-1 px-6 py-3.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-white font-bold rounded-xl transition active:scale-95">
+              Összes újrakezdése 🔄
+            </button>
+            <button id="reviewFlaggedBtn" onclick="restartQuiz(true)" class="flex-1 px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition shadow-md hidden active:scale-95">
+              Csak a döcögősek (0) 🎯
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="infoToast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-900/90 text-white dark:bg-white/90 dark:text-slate-950 text-xs font-semibold py-2.5 px-4 rounded-xl shadow-lg backdrop-blur transition-all duration-500 opacity-0 pointer-events-none z-50">
+      Mondd ki a szót magyarul a mikrofon gombbal — helyes válasznál megfordul a kártya!
+    </div>
+
+  </main>
+
+  <script>
+    const audio = document.getElementById("zene");
+    const synth = window.speechSynthesis;
+    const backLink = document.getElementById("backLink");
+    const homeBtn = document.getElementById("homeBtn");
+    const songSelect = document.getElementById("songSelect");
+    const autoSpeechToggle = document.getElementById("autoSpeechToggle");
+
+    const topicScreen = document.getElementById("topicScreen");
+    const topicList = document.getElementById("topicList");
+    const songScreen = document.getElementById("songScreen");
+    const songScreenTitle = document.getElementById("songScreenTitle");
+    const songListInTopic = document.getElementById("songListInTopic");
+    const backToTopicsBtn = document.getElementById("backToTopicsBtn");
+    const quizScreen = document.getElementById("quizScreen");
+    const noCardsBox = document.getElementById("noCardsBox");
+    const quizArea = document.getElementById("quizArea");
+
+    const quizBox = document.getElementById('quizBox');
+    const resultBox = document.getElementById('resultBox');
+    const quizKeyword = document.getElementById('quizKeyword');
+    const quizHungarianKeyword = document.getElementById('quizHungarianKeyword');
+    const quizEnglishSentence = document.getElementById('quizEnglishSentence');
+    const quizHungarianSentence = document.getElementById('quizHungarianSentence');
+    const actionRow = document.getElementById('actionRow');
+    const reviewFlaggedBtn = document.getElementById('reviewFlaggedBtn');
+    const questionProgress = document.getElementById('questionProgress');
+    const flaggedCountDisplay = document.getElementById('flaggedCountDisplay');
+    const finalScoreText = document.getElementById('finalScoreText');
+    const infoToast = document.getElementById('infoToast');
+    const micBtn = document.getElementById('micBtn');
+    const sttFeedback = document.getElementById('sttFeedback');
+
+    // --- Beszédfelismerés (STT) állapot ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let recognitionRestartHandle = null;
+    let sttAccumulatedTranscript = "";
+    let sttSilenceTimer = null;
+    let isSttListening = false;
+
+    if (typeof BACK_LINK !== "undefined") backLink.href = BACK_LINK;
+
+    let isAutoSpeechEnabled = true;
+    window.toggleAutoSpeech = function() {
+      isAutoSpeechEnabled = !isAutoSpeechEnabled;
+      if (isAutoSpeechEnabled) {
+        autoSpeechToggle.textContent = "🔊 Hang: BE";
+        autoSpeechToggle.className = "text-xs bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 px-3 py-2 rounded-xl font-bold active:scale-95 transition-transform";
+      } else {
+        autoSpeechToggle.textContent = "🔇 Hang: KI";
+        autoSpeechToggle.className = "text-xs bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-xl font-bold active:scale-95 transition-transform";
+        if (synth) synth.cancel();
+      }
+    };
+
+    const topics = (typeof TOPICS !== "undefined") ? TOPICS : [];
+    const flatSongs = [];
+    topics.forEach((topic, tIdx) => {
+      (topic.songs || []).forEach((song, sIdx) => {
+        flatSongs.push({ topicIndex: tIdx, songIndex: sIdx, topic, song });
+      });
+    });
+
+    let currentSong = null;
+    let cards = [];
+    let quizSequence = [];
+    let currentQuizIndex = 0;
+    let isRevealed = false;
+    let flaggedCards = [];
+    let isFirstTimeEver = true;
+    let clipEndHandler = null;
+
+    function showTopicScreen() {
+      stopSttListening();
+      topicScreen.classList.remove('hidden');
+      songScreen.classList.add('hidden');
+      songScreen.classList.remove('flex');
+      quizScreen.classList.add('hidden');
+      quizScreen.classList.remove('flex');
+      songSelect.classList.add('hidden');
+      homeBtn.classList.add('hidden');
+      audio.pause();
+      if (synth) synth.cancel();
+    }
+
+    function showSongScreen(topicIndex) {
+      stopSttListening();
+      const topic = topics[topicIndex];
+      songScreenTitle.textContent = topic.title;
+      songListInTopic.innerHTML = '';
+      (topic.songs || []).forEach((song, sIdx) => {
+        const card = document.createElement('button');
+        card.className = "w-full flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-violet-400 rounded-2xl px-4 py-3.5 shadow-sm transition-all text-left active:scale-[0.98]";
+        card.innerHTML = `<span class="font-bold text-base md:text-lg">${song.title}</span><span class="text-violet-500 text-lg">▶️</span>`;
+        card.addEventListener('click', () => selectSong(topicIndex, sIdx));
+        songListInTopic.appendChild(card);
+      });
+      topicScreen.classList.add('hidden');
+      songScreen.classList.remove('hidden');
+      songScreen.classList.add('flex');
+      quizScreen.classList.add('hidden');
+      quizScreen.classList.remove('flex');
+      songSelect.classList.add('hidden');
+      homeBtn.classList.add('hidden');
+      if (synth) synth.cancel();
+    }
+
+    function buildTopicList() {
+      topicList.innerHTML = '';
+      topics.forEach((topic, tIdx) => {
+        const count = (topic.songs || []).length;
+        const card = document.createElement('button');
+        card.className = "w-full flex items-center justify-between gap-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-violet-400 rounded-2xl px-4 py-3.5 shadow-sm transition-all text-left active:scale-[0.98]";
+        card.innerHTML = `<span><span class="block font-bold text-base md:text-lg">${topic.title}</span><span class="block text-xs text-slate-400">${count} dal</span></span><span class="text-violet-500 text-lg">❯</span>`;
+        card.addEventListener('click', () => showSongScreen(tIdx));
+        topicList.appendChild(card);
+      });
+    }
+
+    function buildSongSelect() {
+      songSelect.innerHTML = '';
+      topics.forEach((topic, tIdx) => {
+        const group = document.createElement('optgroup');
+        group.label = topic.title;
+        (topic.songs || []).forEach((song, sIdx) => {
+          const opt = document.createElement('option');
+          opt.value = `${tIdx}-${sIdx}`;
+          opt.textContent = song.title;
+          group.appendChild(opt);
+        });
+        songSelect.appendChild(group);
+      });
+    }
+
+    songSelect.addEventListener('change', () => {
+      const [tIdx, sIdx] = songSelect.value.split('-').map(Number);
+      selectSong(tIdx, sIdx);
+    });
+
+    homeBtn.addEventListener('click', showTopicScreen);
+    backToTopicsBtn.addEventListener('click', showTopicScreen);
+
+    function selectSong(topicIndex, songIndex) {
+      currentSong = topics[topicIndex].songs[songIndex];
+
+      topicScreen.classList.add('hidden');
+      songScreen.classList.add('hidden');
+      songScreen.classList.remove('flex');
+      quizScreen.classList.remove('hidden');
+      quizScreen.classList.add('flex');
+      songSelect.classList.remove('hidden');
+      homeBtn.classList.remove('hidden');
+      songSelect.value = `${topicIndex}-${songIndex}`;
+
+      audio.pause();
+      stopSttListening();
+      if (synth) synth.cancel();
+      audio.src = currentSong.localAudio || "";
+      audio.load();
+      audio.onerror = function() {
+        if (currentSong.fallbackAudio && audio.src.indexOf(currentSong.fallbackAudio) === -1) {
+          audio.src = currentSong.fallbackAudio;
+          audio.load();
+        }
+      };
+
+      cards = currentSong.cardsData || [];
+      if (cards.length === 0) {
+        noCardsBox.classList.remove('hidden');
+        quizArea.classList.add('hidden');
+        quizArea.classList.remove('flex');
+      } else {
+        noCardsBox.classList.add('hidden');
+        quizArea.classList.remove('hidden');
+        quizArea.classList.add('flex');
+        flaggedCards = [];
+        isFirstTimeEver = true;
+        initQuiz();
+      }
+    }
+
+    // --- Beszédfelismerés (STT) ---
+
+    function cleanForMatch(text) {
+      return text.replace(/\*\*/g, '').toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim();
+    }
+
+    function playBell(success = false) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const freqs = success ? [523.25, 659.25, 783.99] : [880, 1108.73];
+        freqs.forEach((f, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          gain.gain.setValueAtTime(0.0001, now + i * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.28, now + i * 0.06 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.06 + 1.1);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now + i * 0.06);
+          osc.stop(now + i * 0.06 + 1.2);
+        });
+      } catch (e) { console.log("Csengőhang hiba:", e); }
+    }
+
+    function createRecognition() {
+      if (!SpeechRecognition) return null;
+      const r = new SpeechRecognition();
+      r.lang = 'hu-HU'; // a válasz magyarul hangzik el
+      r.continuous = true;
+      r.interimResults = true;
+      r.maxAlternatives = 1;
+
+      r.onresult = (event) => {
+        let currentSessionText = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          currentSessionText += event.results[i][0].transcript;
+        }
+        const piece = currentSessionText.trim();
+        if (piece) sttAccumulatedTranscript = piece;
+
+        if (sttSilenceTimer) clearTimeout(sttSilenceTimer);
+        sttSilenceTimer = setTimeout(() => {
+          if (isSttListening) {
+            stopSttListening();
+            evaluateSttResult(sttAccumulatedTranscript);
+          }
+        }, 3200);
+      };
+
+      r.onerror = (event) => {
+        const fatalErrors = ['not-allowed', 'audio-capture', 'service-not-allowed', 'language-not-supported'];
+        if (fatalErrors.includes(event && event.error)) {
+          sttFeedback.textContent = "⚠️ Nincs mikrofon-hozzáférés. Engedélyezd a beállításokban.";
+          sttFeedback.className = "text-xs font-bold min-h-[1rem] text-amber-500";
+          stopSttListening();
+        }
+        // Átmeneti hibáknál (pl. "no-speech") csendben maradunk, az onend úgyis újraindítja
+        // ugyanazt a példányt — nem hozunk létre új objektumot, hogy ne pittyegjen a mikrofon.
+      };
+
+      // A böngésző kb. 60 mp után magától lezárja a folyamatos felismerést. Ilyenkor UGYANAZT
+      // a példányt indítjuk újra ahelyett, hogy egy vadonatúj objektumot hoznánk létre — az utóbbi
+      // minden alkalommal újra kikérné a mikrofonhozzáférést, ami hallható pittyegést okozna.
+      r.onend = () => {
+        if (!isSttListening) return;
+        if (recognitionRestartHandle) clearTimeout(recognitionRestartHandle);
+        recognitionRestartHandle = setTimeout(() => {
+          if (!isSttListening || !recognition) return;
+          try {
+            recognition.start();
+          } catch (e) {
+            recognition = createRecognition();
+            if (recognition) { try { recognition.start(); } catch (e2) {} }
+          }
+        }, 250);
+      };
+
+      return r;
+    }
+
+    window.toggleSttListening = function() {
+      if (isRevealed) return;
+      if (isSttListening) {
+        stopSttListening();
+        evaluateSttResult(sttAccumulatedTranscript);
+        return;
+      }
+      startSttListening();
+    };
+
+    function startSttListening() {
+      if (!SpeechRecognition) {
+        alert("A böngésződ nem támogatja a beépített beszédfelismerést. Használj Google Chrome-ot.");
+        return;
+      }
+      if (isSttListening || isRevealed) return;
+
+      audio.pause();
+      if (synth) synth.cancel();
+      sttAccumulatedTranscript = "";
+      sttFeedback.textContent = "🎙️ Hallgatlak...";
+      sttFeedback.className = "text-xs font-bold min-h-[1rem] text-brand-600 dark:text-brand-400";
+      micBtn.textContent = "🔴 Leállítás / Értékelés";
+      micBtn.classList.add('is-listening');
+      isSttListening = true;
+
+      recognition = createRecognition();
+      if (!recognition) { stopSttListening(); return; }
+      try {
+        recognition.start();
+      } catch (e) {
+        if (recognitionRestartHandle) clearTimeout(recognitionRestartHandle);
+        recognitionRestartHandle = setTimeout(() => {
+          if (isSttListening && recognition) { try { recognition.start(); } catch (e2) {} }
+        }, 300);
+      }
+    }
+
+    function stopSttListening() {
+      isSttListening = false;
+      if (sttSilenceTimer) { clearTimeout(sttSilenceTimer); sttSilenceTimer = null; }
+      if (recognitionRestartHandle) { clearTimeout(recognitionRestartHandle); recognitionRestartHandle = null; }
+      if (micBtn) {
+        micBtn.textContent = "🎙️ Mondd ki magyarul!";
+        micBtn.classList.remove('is-listening');
+      }
+      if (recognition) {
+        try {
+          recognition.onresult = null;
+          recognition.onerror = null;
+          recognition.onend = null;
+          recognition.stop();
+        } catch (e) {}
+      }
+    }
+
+    function evaluateSttResult(spoken) {
+      if (isRevealed) return;
+      const currentCard = quizSequence[currentQuizIndex];
+      const expected = currentCard.keywordHungarian || '';
+      const cleanOriginal = cleanForMatch(expected);
+      const cleanSpoken = cleanForMatch(spoken);
+
+      if (!cleanSpoken || !cleanOriginal) {
+        sttFeedback.textContent = "⚠️ Nem hallottam semmit. Próbáld meg újra.";
+        sttFeedback.className = "text-xs font-bold min-h-[1rem] text-amber-500";
+        return;
+      }
+
+      const origWords = cleanOriginal.split(/\s+/);
+      const spokenWords = cleanSpoken.split(/\s+/);
+      let matchCount = 0;
+      origWords.forEach(w => { if (spokenWords.includes(w)) matchCount++; });
+      const matchRatio = matchCount / origWords.length;
+
+      if (matchRatio >= 0.6) {
+        sttFeedback.textContent = "🎉 Szuper! Pontos fordítás!";
+        sttFeedback.className = "text-xs font-bold min-h-[1rem] text-emerald-500";
+        playBell(true);
+        revealAnswer();
+      } else if (matchRatio >= 0.3) {
+        sttFeedback.textContent = "👍 Nem rossz, próbáld meg még egyszer!";
+        sttFeedback.className = "text-xs font-bold min-h-[1rem] text-amber-500";
+      } else {
+        sttFeedback.textContent = "💡 Gyakorold még ezt a szót, majd próbáld újra.";
+        sttFeedback.className = "text-xs font-bold min-h-[1rem] text-rose-500";
+      }
+    }
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initQuiz(onlyReviewMode = false) {
+      if (onlyReviewMode && flaggedCards.length > 0) {
+        quizSequence = shuffleArray(flaggedCards);
+        flaggedCards = [];
+      } else {
+        quizSequence = shuffleArray(cards);
+        flaggedCards = [];
+      }
+
+      currentQuizIndex = 0;
+      updateFlaggedCounter();
+
+      quizBox.style.display = 'flex';
+      actionRow.style.display = 'none';
+      resultBox.classList.add('hidden');
+      resultBox.classList.remove('flex');
+      loadQuestion();
+
+      if (isFirstTimeEver) {
+        isFirstTimeEver = false;
+        setTimeout(() => {
+          infoToast.classList.remove('opacity-0');
+          infoToast.classList.add('opacity-100');
+          setTimeout(() => {
+            infoToast.classList.remove('opacity-100');
+            infoToast.classList.add('opacity-0');
+          }, 4000);
+        }, 400);
+      }
+    }
+
+    function speakKeyword() {
+      if (!synth) return;
+      synth.cancel();
+      const currentCard = quizSequence[currentQuizIndex];
+      if (!currentCard) return;
+      const utterance = new SpeechSynthesisUtterance(currentCard.keyword);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      synth.speak(utterance);
+    }
+
+    function loadQuestion() {
+      isRevealed = false;
+      quizBox.classList.remove('is-flipped');
+      sttFeedback.textContent = '';
+      actionRow.style.display = 'none';
+      audio.pause();
+      stopSttListening();
+      if (synth) synth.cancel();
+      if (clipEndHandler) audio.removeEventListener('timeupdate', clipEndHandler);
+
+      const currentCard = quizSequence[currentQuizIndex];
+      questionProgress.textContent = `${currentQuizIndex + 1} / ${quizSequence.length} Szó`;
+      quizKeyword.textContent = currentCard.keyword;
+      quizHungarianKeyword.textContent = currentCard.keywordHungarian || '(nincs megadva fordítás)';
+      quizEnglishSentence.textContent = currentCard.english.replace(/\*\*/g, '');
+      quizHungarianSentence.textContent = currentCard.hungarian.replace(/\*\*/g, '');
+
+      // Automatikus felolvasás új kártyánál, ha be van kapcsolva
+      if (isAutoSpeechEnabled) {
+        setTimeout(() => speakKeyword(), 300);
+      }
+    }
+
+    function playClip() {
+      const currentCard = quizSequence[currentQuizIndex];
+      if (typeof currentCard.startTime !== 'number') return;
+      if (clipEndHandler) audio.removeEventListener('timeupdate', clipEndHandler);
+      audio.currentTime = currentCard.startTime;
+      audio.play().catch(e => console.log("Lejátszási hiba:", e));
+      clipEndHandler = function() {
+        if (audio.currentTime >= currentCard.endTime) {
+          audio.pause();
+          audio.removeEventListener('timeupdate', clipEndHandler);
+        }
+      };
+      audio.addEventListener('timeupdate', clipEndHandler);
+    }
+
+    window.revealAnswer = function() {
+      if (isRevealed) return;
+      isRevealed = true;
+      stopSttListening();
+
+      if (synth) synth.cancel();
+      quizBox.classList.add('is-flipped');
+      actionRow.style.display = 'flex';
+
+      // A dalrészlet a kártya megfordulásával egy időben induljon.
+      setTimeout(() => { playClip(); }, 250);
+    }
+
+    window.handleFeedback = function(isFlagged) {
+      const currentCard = quizSequence[currentQuizIndex];
+
+      if (isFlagged) {
+        if (!flaggedCards.some(c => c.keyword === currentCard.keyword)) {
+          flaggedCards.push(currentCard);
+          updateFlaggedCounter();
+        }
+      }
+
+      if (currentQuizIndex < quizSequence.length - 1) {
+        currentQuizIndex++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function updateFlaggedCounter() {
+      if (flaggedCards.length > 0) {
+        flaggedCountDisplay.textContent = `Ismétlendő: ${flaggedCards.length}`;
+        flaggedCountDisplay.classList.remove('hidden');
+      } else {
+        flaggedCountDisplay.classList.add('hidden');
+      }
+    }
+
+    function showResults() {
+      audio.pause();
+      stopSttListening();
+      if (synth) synth.cancel();
+      quizBox.style.display = 'none';
+      actionRow.style.display = 'none';
+      resultBox.classList.remove('hidden');
+      resultBox.classList.add('flex');
+
+      if (flaggedCards.length === 0) {
+        finalScoreText.innerHTML = "🎯 <strong>Zseniális!</strong> Minden szó hiba nélkül ment!";
+        reviewFlaggedBtn.classList.add('hidden');
+      } else {
+        finalScoreText.innerHTML = `Végigértél! Elmentettünk <strong class="text-amber-500 font-bold">${flaggedCards.length} darab</strong> olyan szót, amit még gyakorolni kell.`;
+        reviewFlaggedBtn.textContent = `Csak a döcögősek (${flaggedCards.length}) 🎯`;
+        reviewFlaggedBtn.classList.remove('hidden');
+        reviewFlaggedBtn.classList.add('block');
+      }
+    }
+
+    function restartQuiz(onlyReview = false) {
+      initQuiz(onlyReview);
+    }
+
+    if (flatSongs.length) {
+      buildTopicList();
+      buildSongSelect();
+      const params = new URLSearchParams(window.location.search);
+      const requestedId = params.get('song');
+      if (requestedId) {
+        const found = flatSongs.find(f => f.song.id === requestedId);
+        if (found) selectSong(found.topicIndex, found.songIndex);
+      }
+    }
+  </script>
+</body>
+</html>
