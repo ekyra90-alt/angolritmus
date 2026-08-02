@@ -229,7 +229,7 @@ const TOPICS = [
             lines: [
               { text: "I remember my **childhood** here.", hungarian: "Emlékszem a gyermekkoromra itt.", start: 41.1, end: 44.0 },
               { text: "The old days slowly disappear.", hungarian: "A régi napok lassan eltűnnek.", start: 44, end: 47.9 },
-              { text: "Every **generation** walks this way.", hungarian: "Minden generáció erre jár.", start: 47.9, end: 51.0 },
+              { text: "Every **generation** walks this way.", hungarian: "Minden generáció erre jár.", start: 46.8, end: 50 },
               { text: "But nobody has time to stay.", hungarian: "De senkinek nincs ideje maradni.", start: 51, end: 54.7 }
             ]
           },
