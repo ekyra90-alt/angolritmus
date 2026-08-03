@@ -207,7 +207,7 @@ const TOPICS = [
           { keyword: "Youth", keywordHungarian: "fiatalság / fiatalok", english: "Keep your **youth** alive and bold.", hungarian: "Őrizd meg a fiatalságodat és légy bátor.", startTime: 138.1, endTime: 141.5, verseIndex: 7 },
           { keyword: "Divorced", keywordHungarian: "elvált", english: "That **divorced** man walks alone.", hungarian: "Az az elvált férfi egyedül sétál.", startTime: 145.1, endTime: 148.5, verseIndex: 7 },
           { keyword: "Elderly", keywordHungarian: "idős", english: "An **elderly** man sits on a chair.", hungarian: "Egy idős férfi ül egy széken.", startTime: 153, endTime: 156.1, verseIndex: 8 },
-          { keyword: "Middle", keywordHungarian: "aged - középkorú", english: "A **middle-aged** woman reads a book.", hungarian: "Egy középkorú nő könyvet olvas.", startTime: 159.7, endTime: 163.1, verseIndex: 8 },
+          { keyword: "Middle-aged", keywordHungarian: "középkorú", english: "A **middle-aged** woman reads a book.", hungarian: "Egy középkorú nő könyvet olvas.", startTime: 159.7, endTime: 163.1, verseIndex: 8 },
           { keyword: "Personal", keywordHungarian: "személyes", english: "Keep it **personal** and sweet.", hungarian: "Maradjon személyes és kedves.", startTime: 198.6, endTime: 201.8, verseIndex: 10 },
           { keyword: "Teenage", keywordHungarian: "tizenéves / tinédzser", english: "My **teenage** memories return.", hungarian: "Visszatérnek a tinédzser emlékeim.", startTime: 205, endTime: 208.5, verseIndex: 10 },
           { keyword: "Guys", keywordHungarian: "srácok", english: "Hello **guys**, look at the sun!", hungarian: "Sziasztok srácok, nézzétek a napot!", startTime: 213, endTime: 216.0, verseIndex: 11 },
